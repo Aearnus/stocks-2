@@ -86,6 +86,7 @@ post "/verifylogin" do
     end
 end
 
+#begin game functions
 def check_if_stock_exists(stock)
     puts "TESTING STOCK #{stock}"
     if stock.length > 10
@@ -100,12 +101,12 @@ def check_if_stock_exists(stock)
     puts "STOCK DOESN'T EXIST"
     return false
 end
-#begin game functions
+#create a stock
 post "/createstock" do
     shareCost = 100
     stockName = params["stockName"];
     stockDesc = params["stockDesc"];
-    stockAmount = params["stockAmount"];
+    stockAmount = params["stockAmount"].to_i;
     userId = params["userId"];
     #make sure user exists
     if !check_login_validity(userId)
@@ -149,7 +150,7 @@ post "/createstock" do
                 transaction: "buy",
                 time: Time.now.to_i,
                 amount: stockAmount,
-                value: shareCost,
+                value: shareCost
             }
         ]
     }
