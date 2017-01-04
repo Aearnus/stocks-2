@@ -138,15 +138,25 @@ post "/createstock" do
     if (stockAmount * shareCost > user["money"])
         data_return(false, JSON.generate({error: "You don't have enough money to buy #{stockAmount} shares! (required: $#{stockAmount * shareCost})", errorWith: "stockAmount"}))
     end
+    #finally, it's gucci - create the stock
     defaultStock = {
-        "name": "",
-        "desc": "",
-        "shares": 200,
-        "createdBy": "",
-        "boughtFor": 0
+        name: stockName.upcase,
+        desc: stockDesc,
+        shares: stockAmount,
+        createdBy: "#{userId}",
+        history: [
+            {
+                transaction: "buy",
+                time: Time.now.to_i,
+                amount: stockAmount,
+                value: shareCost,
+            }
+        ]
     }
-
     File.open("stock-list", "a") do |f|
         f.puts "#{stockName}"
+    end
+    File.open("stocks/#{stockName}", "w") do |f|
+        f.write JSON.generate(defaultStock)
     end
 end
