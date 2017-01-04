@@ -1,0 +1,19 @@
+user:
+{
+    "id": "#{userId}",
+    "money": 100,
+    "createdStocks": [<list of stock names>],
+    "ownedStocks": {}
+}
+
+stock:
+{
+    --names can be up to 10 characters long
+    "name": "",
+    --descriptions can be up to 100 characters long
+    "desc": "",
+    --minimum amount of shares to start a stock with is 200
+    "shares": 200,
+    "createdBy": "",
+    "boughtFor": 0
+}

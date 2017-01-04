@@ -31,11 +31,7 @@ function verifyLogin(callback) {
     idData.append("userId", localStorage.getItem("stocks2id"));
     postRequest("/verifylogin", function (req) {
         var res = JSON.parse(req.responseText)["result"];
-        if (res == "true") {
-            callback(true);
-        } else if (res == "false") {
-            callback(false);
-        }
+        callback(res);
     }, idData);
 }
 
@@ -60,7 +56,8 @@ function funnyName() {
         "Down With Socialism",
         "The Free Market Economy",
         "Laissez-Faire",
-        "Tell Me My Odds"
+        "Tell Me My Odds",
+        "Bury Me In My Money",
     ]
     var finalName = nameArray[Math.floor(Math.random() * nameArray.length)];
     document.title = "Stocks 2: " + finalName;
