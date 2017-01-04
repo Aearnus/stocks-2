@@ -39,16 +39,29 @@ get "/newId" do
 end
 
 def check_login_validity(uuid)
+    puts "TESTING UUID #{uuid}"
     File.foreach("id-list") do |fileUuid|
-        if uuid == fileUuid
+        if uuid == fileUuid.chomp
+            puts "UUID GOOD"
             return true
         end
     end
+    puts "UUID BAD"
     return false
 end
 post "/login" do
     uuid = params["userId"]
     if !check_login_validity(uuid)
         redirect "/login-fail.html"
+    else
+        redirect "/trade.html"
+    end
+end
+post "/verifylogin" do
+    uuid = params["userId"]
+    if check_login_validity(uuid)
+        "{\"result\": \"true\"}"
+    else
+        "{\"result\": \"false\"}"
     end
 end

@@ -1,5 +1,44 @@
 function i(id) { return document.getElementById(id); }
 
+function getRequest(url, callback) {
+    var req = new XMLHttpRequest();
+    req.open("GET", url);
+    req.onreadystatechange = function () {
+        if (req.readyState == XMLHttpRequest.DONE && req.status == 200) {
+            callback(req);
+        } else if (req.readyState == XMLHttpRequest.DONE && req.status != 200) {
+            alert("There was a problem contacting the server: request status " + req.status);
+        }
+    };
+    req.send(null);
+}
+function postRequest(url, callback, data) {
+    var req = new XMLHttpRequest();
+    req.open("POST", url);
+    req.onreadystatechange = function () {
+        if (req.readyState == XMLHttpRequest.DONE && req.status == 200) {
+            callback(req);
+        } else if (req.readyState == XMLHttpRequest.DONE && req.status != 200) {
+            alert("There was a problem contacting the server: request status " + req.status);
+        }
+    };
+    req.send(data);
+}
+
+//true for logged in, false for not logged in
+function verifyLogin(callback) {
+    var idData = new FormData();
+    idData.append("userId", localStorage.getItem("stocks2id"));
+    postRequest("/verifylogin", function (req) {
+        var res = JSON.parse(req.responseText)["result"];
+        if (res == "true") {
+            callback(true);
+        } else if (res == "false") {
+            callback(false);
+        }
+    }, idData);
+}
+
 function funnyName() {
     var nameArray = [
         "Online Shkrelism",
