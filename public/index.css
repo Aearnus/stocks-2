@@ -1,0 +1,50 @@
+@import url(https://fonts.googleapis.com/css?family=Oswald:400,700);
+
+body, h1, h2, h3 {
+	font-family: 'Oswald', sans-serif;
+	font-weight: 400;
+}
+
+body {
+	width: 60%;
+	margin: 0 auto;
+}
+
+.halfpage {
+	width: 49%;
+	margin: 0 0 0 0;
+	display: inline-block;
+}
+
+.rightalign {
+	text-align: right;
+	float: right;
+}
+
+#titleContainer {
+	text-align: center;
+}
+
+#titleBox {
+	display: inline-block;
+}
+
+#gameTitle {
+	text-align: left;
+	color: #555555;
+	margin-bottom: -5px;
+	font-weight: bold;
+}
+
+#yourId {
+	width: 100%;
+	overflow-x: scroll;
+	background: rgb(220, 220, 220);
+	padding: 10px 0px 10px 0px;
+}
+
+.subtitle {
+	margin-top: 0px;
+	color: #FF7930;
+	font-weight: normal;
+}

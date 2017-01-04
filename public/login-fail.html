@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+
+<meta charset="UTF-8">
+<html>
+	<head>
+		<title>
+			Stocks 2: Online Shkrelism
+		</title>
+		<link rel="stylesheet" type="text/css" href="index.css">
+		<script type="text/javascript" src="general-functions.js"></script>
+		<script type="text/javascript" src="login-functions.js"></script>
+	</head>
+	<body onload="init()">
+		<div id="titleContainer">
+			<div id="titleBox">
+				<h1 id="gameTitle">
+					Stocks 2
+				</h1>
+				<h2 class="subtitle" id="gameSubtitle">
+					Online Shkrelism
+				</h2>
+			</div>
+		</div>
+		<div>
+			Login failed! Redirecting back to the homepage in 5 seconds...
+		</div>
+		<script type="text/javascript">
+		window.setTimeout(function () {
+			window.location.href = "/";
+		}, 5000);
+		</script>
+	</body>
+</html>

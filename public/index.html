@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+
+<meta charset="UTF-8">
+<html>
+	<head>
+		<title>
+			Stocks 2: Online Shkrelism
+		</title>
+		<link rel="stylesheet" type="text/css" href="index.css">
+		<script type="text/javascript" src="general-functions.js"></script>
+		<script type="text/javascript" src="login-functions.js"></script>
+	</head>
+	<body onload="init()">
+		<div id="titleContainer">
+			<div id="titleBox">
+				<h1 id="gameTitle">
+					Stocks 2
+				</h1>
+				<h2 class="subtitle" id="gameSubtitle">
+					Online Shkrelism
+				</h2>
+			</div>
+		</div>
+		<div id="accountContainer">
+			<div class="halfpage">
+				<h2 class="subtitle">
+					Login
+				</h2>
+				<form action="/login" method="post">
+					<label for="idEntry">
+						ID:
+					</label>
+					<input type="text" id="idEntry" name="userId"/>
+					<button type="submit">
+						Submit & Login
+					</button>
+				</form>
+			</div>
+			<div class="halfpage rightalign">
+				<h2 class="subtitle">
+					Sign Up
+				</h2>
+				<p>
+					Click the button below to recieve an ID. Save it and don't show anyone! It is your key to log into your Stocks 2 account, and impossible to recover.
+				</p>
+				<button onclick="getId()">
+					Recieve ID
+				</button>
+				<p>
+					Your ID
+					<b>
+						(write it down! save it! don't lose it!):
+					</b>
+				</p>
+				<pre id="yourId"></pre>
+			</div>
+		</div>
+	</body>
+</html>
