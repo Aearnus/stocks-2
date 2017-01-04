@@ -104,7 +104,7 @@ end
 #create a stock
 post "/createstock" do
     shareCost = 100
-    stockName = params["stockName"];
+    stockName = params["stockName"].upcase;
     stockDesc = params["stockDesc"];
     stockAmount = params["stockAmount"].to_i;
     userId = params["userId"];
@@ -141,7 +141,7 @@ post "/createstock" do
     end
     #finally, it's gucci - create the stock
     defaultStock = {
-        name: stockName.upcase,
+        name: stockName,
         desc: stockDesc,
         shares: stockAmount,
         createdBy: "#{userId}",
@@ -154,10 +154,37 @@ post "/createstock" do
             }
         ]
     }
+    #write the stock to disk
     File.open("stock-list", "a") do |f|
         f.puts "#{stockName}"
     end
     File.open("stocks/#{stockName}", "w") do |f|
         f.write JSON.generate(defaultStock)
     end
+    #write the user's new stock portfolio, now containing this stock
+    user["createdStocks"] << stockName
+    user["ownedStocks"] << {name: stockName, shares: stockAmount}
+    File.open("ids/#{userId}", "w") do |f|
+        f.write JSON.generate(user)
+    end
+end
+
+post "/buystock" do
+    stockName = params["stockName"].upcase;
+    shareAmount = params["stockAmount"].to_i;
+    userId = params["userId"];
+    #make sure user exists
+    if !check_login_validity(userId)
+        data_return(false, JSON.generate({error: "Invalid login token!", errorWith: "userId"}))
+    end
+    #make sure stock exists
+    if !check_if_stock_exists(stockName)
+        data_return(false, JSON.generate({error: "This stock doesn't exist!", errorWith: "stockName"}))
+    end
+    user = JSON.parse(File.read("ids/#{userId}"))
+    #make sure the user has enough money
+    #TODO: market listings, do those first. (aka /sellstock)
+    #if (shareAmount * shareCost > user["money"])
+    #    data_return(false, JSON.generate({error: "You don't have enough money to buy #{stockAmount} shares! (required: $#{stockAmount * shareCost})", errorWith: "stockAmount"}))
+    #end
 end
