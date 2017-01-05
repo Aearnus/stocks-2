@@ -1,6 +1,7 @@
+this populates the ids/ folder, with files named <user id>
 user:
 {
-    "id": "#{userId}",
+    "id": "<user id>",
     "money": 100,
     "createdStocks": [<list of stock names>],
     "ownedStocks": [
@@ -11,6 +12,7 @@ user:
     ]
 }
 
+this populates the stocks/ folder, with files named <stock name>
 stock:
 {
     --names can be up to 10 characters long
@@ -35,4 +37,13 @@ stock:
         }
         ...
     ]
+}
+
+this populates the market/ folder, with subfolders names with names of stocks, with files named <random uuid>
+market listing:
+{
+    --this is in the folder name already
+    "name": "<stock name>"
+    "amount": <shares to transfer>
+    "value": <monetary value of 1 share>
 }

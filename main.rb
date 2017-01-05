@@ -31,6 +31,7 @@ end
 
 assert_dir "ids"
 assert_dir "stocks"
+assert_dir "market"
 assert_file "id-list", ""
 assert_file "stock-list", ""
 
@@ -161,6 +162,8 @@ post "/createstock" do
     File.open("stocks/#{stockName}", "w") do |f|
         f.write JSON.generate(defaultStock)
     end
+    #make the market listing folder
+    Dir.mkdir("market/#{stockName}")
     #write the user's new stock portfolio, now containing this stock
     user["createdStocks"] << stockName
     user["ownedStocks"] << {name: stockName, shares: stockAmount}
