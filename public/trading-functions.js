@@ -6,4 +6,5 @@ function init() {
             window.location.href = "/";
         }
     });
+    i("createStockUserId").value = localStorage.getItem("stocks2id");
 }

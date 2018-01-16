@@ -30,5 +30,24 @@
 		<h2 class="subtitle">
 			Create a Public Company
 		</h2>
+		<form action="/createstock" method="post">
+			<p>
+				<label for="createStockStockName">Stock name:</label>
+				<input type="text" id="createStockStockName" name="stockName">
+			</p>
+			<p>
+				<label for="createStockStockDesk">Stock description:</label>
+				<input type="text" id="createStockStockDesc" name="stockDesc">
+			</p>
+			<p>
+				<label for="createStockStockAmount">Amount of stocks to create:</label>
+				<input type="text" id="createStockStockAmount" name="stockAmount">
+			</p>
+			<input type="text" id="createStockUserId" name="userId" hidden="true">
+
+			<button type="submit">
+				Create Business
+			</button>
+		</form>
 	</body>
 </html>

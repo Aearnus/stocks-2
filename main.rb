@@ -3,7 +3,7 @@ require "fileutils"
 require "securerandom"
 require "json"
 
-set :bind, "10.0.1.22"
+set :bind, "0.0.0.0"
 set :port, 4567
 set :public_folder, "public"
 
@@ -46,7 +46,7 @@ get "/newId" do
         id: "#{userId}",
         money: 100,
         createdStocks: [],
-        ownedStocks: {}
+        ownedStocks: []
     }
     File.open("id-list", "a") do |f|
         f.puts "#{userId}"
@@ -94,7 +94,7 @@ def check_if_stock_exists(stock)
         return false
     end
     File.foreach("stock-list") do |fileStock|
-        if uuid == fileUuid.chomp
+        if stock == fileStock.chomp
             puts "STOCK EXISTS"
             return true
         end
