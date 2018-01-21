@@ -114,6 +114,7 @@ end
 #       }
 ############################################################
 post "/createstock" do
+    return if !assert_params(params, "stockName", "stockDesc", "stockAmount", "userId")
     shareCost = 100
     stockName = params["stockName"].upcase;
     stockDesc = params["stockDesc"];
@@ -254,6 +255,14 @@ get "/stockinfo/*" do |stockName|
     end
 end
 
+get "/idinfo/*" do |id|
+    if !check_login_validity(id)
+        return data_return(false, JSON.generate({error: "Invalid user ID!", errorWith: "userId"}))
+    else
+        return data_return(true, File.read("ids/#{id}"))
+    end
+end
+
 ############################################################
 # GET /liststocks
 # Lists out the top n stocks by some criteria
@@ -274,6 +283,7 @@ end
 get "/liststocks" do
     # this has to slurp every stock in memory before running! this is bad!
     # TODO: load and keep stocks in memory before running this function
+    return if !assert_params(params, "criteria", "n")
     criteria = params["criteria"]
     n = params["n"].to_i
     stocksList = []

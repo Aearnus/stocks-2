@@ -10,6 +10,17 @@ def assert_file(fileName, defaultText)
         end
     end
 end
+
+def assert_params(params, *neededParams)
+    neededParams.each do |param|
+        if params[param].nil?
+            puts "Dropped a request because the parameter `#{param}` was nil."
+            return false
+        end
+    end
+    return true
+end
+
 def string_return(res)
     "{\"result\": \"#{res}\"}"
 end
@@ -65,7 +76,7 @@ end
 # Return value:
 #   Number -- the average value of the stock
 ############################################################
-def get_stock_value(stockObject, transactions) {
+def get_stock_value(stockObject, transactions)
     if transactions > stockObject["history"].length
         transactions = stockObject["history"].length
     end
@@ -75,4 +86,4 @@ def get_stock_value(stockObject, transactions) {
         totalValue += t["value"]
     end
     return totalValue / transactions
-}
+end
