@@ -26,6 +26,8 @@ stock:
     "history": [
         {
             "transaction": "buy" or "sell",
+            --IMPORTANT NOTE: BUY denotes the fact that the stock has been transacted and moved hands
+            --SELL denotes that someone has created a sell offer, not that it was sold.
             "time": <unix timestamp>,
             "amount": <shares transferred>,
             "value": <monetary value of 1 share>
@@ -39,13 +41,4 @@ stock:
         ...
     ],
     "averageValue": <value, set by get_stock_value in helper-functions.rb>
-}
-
-this populates the market/ folder, with subfolders names with names of stocks, with files named <random uuid>
-market listing:
-{
-    --this is in the folder name already
-    "name": "<stock name>"
-    "amount": <shares to transfer>
-    "value": <monetary value of 1 share>
 }

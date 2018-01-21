@@ -11,7 +11,6 @@ set :public_folder, "public"
 
 assert_dir "ids"
 assert_dir "stocks"
-assert_dir "market"
 assert_file "id-list"
 assert_file "stock-list"
 
@@ -189,8 +188,6 @@ post "/createstock" do
         f.write JSON.generate(defaultStock)
     end
     update_stock_cache(defaultStock)
-    #make the market listing folder
-    Dir.mkdir("market/#{stockName}")
     #write the user's new stock portfolio, now containing this stock
     user["createdStocks"] << stockName
     user["ownedStocks"] << {name: stockName, shares: stockAmount}
@@ -235,7 +232,7 @@ post "/buystock" do
     end
     user = $idCache[userId]
     #make sure the user has enough money
-    #TODO: market listings, do those first. (aka /sellstock)
+    #TODO: stock listings, do those first. (aka /sellstock)
     #if (shareAmount * shareCost > user["money"])
     #    data_return(false, JSON.generate({error: "You don't have enough money to buy #{stockAmount} shares! (required: $#{stockAmount * shareCost})", errorWith: "stockAmount"}))
     #end
