@@ -4,7 +4,7 @@
 <html>
 	<head>
 		<title>
-			Stocks 2: Online Shkrelism
+			Stocks 2: Loading...
 		</title>
 		<link rel="stylesheet" type="text/css" href="index.css">
 		<script type="text/javascript" src="general-functions.js"></script>
@@ -12,42 +12,52 @@
 	</head>
 	<body onload="init()">
 		<div id="titleContainer">
-			<div id="titleBox">
-				<h1 id="gameTitle">
-					Stocks 2
-				</h1>
-				<h2 class="subtitle" id="gameSubtitle">
-					Online Shkrelism
+			<h1 class="title" id="gameTitle">
+				Stocks 2
+			</h1>
+		</div>
+		<div id="subtitleContainer">
+			<h1 id="gameSubtitle">
+				Loading...
+			</h1>
+		</div>
+		<div id="mainContent">
+			<div class="tab">
+				<h2 class="tabText">
+					Your Portfolio
 				</h2>
 			</div>
-		</div>
-		<h2 class="subtitle">
-			Your Portfolio
-		</h2>
-		<h2 class="subtitle">
-			Browse Stocks
-		</h2>
-		<h2 class="subtitle">
-			Create a Public Company
-		</h2>
-		<form action="/createstock" method="post">
-			<p>
-				<label for="createStockStockName">Stock name:</label>
-				<input type="text" id="createStockStockName" name="stockName">
-			</p>
-			<p>
-				<label for="createStockStockDesk">Stock description:</label>
-				<input type="text" id="createStockStockDesc" name="stockDesc">
-			</p>
-			<p>
-				<label for="createStockStockAmount">Amount of stocks to create:</label>
-				<input type="text" id="createStockStockAmount" name="stockAmount">
-			</p>
-			<input type="text" id="createStockUserId" name="userId" hidden="true">
+			<div class="tab">
+				<h2 class="tabText">
+					Browse Stocks
+				</h2>
+			</div>
+			<div class="tab">
+				<h2 class="tabText">
+					Found a Company
+				</h2>
+			</div>
+			<div class=tabContents id=bizContent>
+				<form action="/createstock" method="post">
+					<p>
+						<label for="createStockStockName">Stock name:</label>
+						<input type="text" id="createStockStockName" name="stockName">
+					</p>
+					<p>
+						<label for="createStockStockDesk">Stock description:</label>
+						<input type="text" id="createStockStockDesc" name="stockDesc">
+					</p>
+					<p>
+						<label for="createStockStockAmount">Amount of stocks to create:</label>
+						<input type="text" id="createStockStockAmount" name="stockAmount">
+					</p>
+					<input type="text" id="createStockUserId" name="userId" hidden="true">
 
-			<button type="submit">
-				Create Business
-			</button>
-		</form>
+					<button type="submit">
+						Create
+					</button>
+				</form>
+			</div>
+		</div>
 	</body>
 </html>
