@@ -65,6 +65,7 @@ assert_file "id-list", ""
 assert_file "stock-list", ""
 
 ############################################################
+# GET /
 # Automatic redirect to homepage
 # GET params:
 #   none
@@ -76,11 +77,12 @@ get "/" do
 end
 
 ############################################################
+# GET /newId
 # Creates a new user ID to use for login and requests
 # GET params:
 #   none
 # Return value:
-#   JSON: {"id": "<user id>"}
+#   {"id": "<user id>"}
 ############################################################
 get "/newId" do
     userId = SecureRandom.uuid
@@ -96,10 +98,11 @@ get "/newId" do
     File.open("ids/#{userId}", "w") do |f|
         f.write JSON.generate(defaultIdStats)
     end
-    "{\"id\":\"#{userId}\"}"
+    return "{\"id\":\"#{userId}\"}"
 end
 
 ############################################################
+# POST /login
 # Logs into an account using a user ID
 # POST params:
 #   userId: the user ID of the user wishing to log in
@@ -116,26 +119,31 @@ post "/login" do
 end
 
 ############################################################
+# POST /verifylogin
 # Checks a user ID to see if it exists, through check_login_validity
 # POSSIBLE EXPLOIT: user enumeration. Is this actually a bad thing?
 # I'm not sure, due to the improbability of an ID conflict
 # POST params:
 #   userId: the user ID to check
 # Return value:
-#   JSON: {"result": true/false}
+#   On verification:
+#       {"result": true}
+#   On verification failure:
+#       {"result": false}
 ############################################################
 post "/verifylogin" do
     userId = params["userId"]
     if check_login_validity(userId)
-        boolnum_return(true)
+        return boolnum_return(true)
     else
-        boolnum_return(false)
+        return boolnum_return(false)
     end
 end
 
 
 
 ############################################################
+# POST /createstock
 # Hook to create a new publicly traded stock
 # POST params:
 #   stockName: the name of the stock to create. 2-9 alphanumeric characters
@@ -143,7 +151,16 @@ end
 #   stockAmount: the amount of stocks to create. integer > 200
 #   userId: the id of the user that wishes to buy a stock
 # Return value:
-#   none
+#   On success:
+#       {"result": true}
+#   On failure:
+#       {
+#           "result": false,
+#           "data": {
+#               "error": "<error message>",
+#               "errorWith": "<param>"
+#           }
+#       }
 ############################################################
 post "/createstock" do
     shareCost = 100
@@ -153,29 +170,29 @@ post "/createstock" do
     userId = params["userId"];
     #make sure user exists
     if !check_login_validity(userId)
-        data_return(false, JSON.generate({error: "Invalid login token!", errorWith: "userId"}))
+        return data_return(false, JSON.generate({error: "Invalid login token!", errorWith: "userId"}))
     end
     #make sure stock doesn't already exist
     if check_if_stock_exists(stockName)
-        data_return(false, JSON.generate({error: "This stock already exists!", errorWith: "stockName"}))
+        return data_return(false, JSON.generate({error: "This stock already exists!", errorWith: "stockName"}))
     end
     #make sure stock is only alphanumeric
     if stockName =~ /[^a-zA-Z0-9]/
-        data_return(false, JSON.generate({error: "The stock name contains invalid characters!", errorWith: "stockDesc"}))
+        return data_return(false, JSON.generate({error: "The stock name contains invalid characters!", errorWith: "stockDesc"}))
     end
     if stockDesc =~ /[^a-zA-Z0-9] /
-        data_return(false, JSON.generate({error: "The stock description contains invalid characters!", errorWith: "stockDesc"}))
+        return data_return(false, JSON.generate({error: "The stock description contains invalid characters!", errorWith: "stockDesc"}))
     end
     #make sure that name and description are okay length
     if (stockName.length > 10) || (stockName.length < 1)
-        data_return(false, JSON.generate({error: "Stock names have to be from 1 to 10 letters long!", errorWith: "stockName"}))
+        return data_return(false, JSON.generate({error: "Stock names have to be from 1 to 10 letters long!", errorWith: "stockName"}))
     end
     if (stockDesc.length > 100) || (stockDesc.length < 4)
-        data_return(false, JSON.generate({error: "Stock descriptions have to be from 4 to 100 letters long!", errorWith: "stockDesc"}))
+        return data_return(false, JSON.generate({error: "Stock descriptions have to be from 4 to 100 letters long!", errorWith: "stockDesc"}))
     end
     #make sure they bought at least 200 shares for $100 each - the minimum
     if (stockAmount < 200)
-        data_return(false, JSON.generate({error: "You must buy at least 200 shares to create a stock!", errorWith: "stockAmount"}))
+        return data_return(false, JSON.generate({error: "You must buy at least 200 shares to create a stock!", errorWith: "stockAmount"}))
     end
     user = JSON.parse(File.read("ids/#{userId}"))
     #make sure the user has enough money
@@ -212,14 +229,26 @@ post "/createstock" do
     File.open("ids/#{userId}", "w") do |f|
         f.write JSON.generate(user)
     end
+    boolnum_return(true)
 end
 
 ############################################################
+# POST /buystock
 # Hook to buy a stock
 # POST params:
 #   stockName: the stock to buy
 #   stockAmount: the amount of stocks to buy
 #   userId: the id of the user that wishes to buy a stock
+#   On success:
+#       {"result": true}
+#   On failure:
+#       {
+#           "result": false,
+#           "data": {
+#               "error": "<error message>",
+#               "errorWith": "<param>"
+#           }
+#       }
 ############################################################
 post "/buystock" do
     stockName = params["stockName"].upcase;
@@ -242,10 +271,12 @@ post "/buystock" do
 end
 
 ############################################################
-# Creates a new user ID to use for login and requests
+# GET /stock/<stock name>
+# Gets information about a certain named stock
 # GET params:
 #   none
 # Return value:
 #   JSON: {"id": "<user id>"}
 ############################################################
 get "/stock/*" do
+end
