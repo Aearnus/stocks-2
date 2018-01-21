@@ -1,13 +1,42 @@
-@import url(https://fonts.googleapis.com/css?family=Oswald:400,700);
+@import url('https://fonts.googleapis.com/css?family=Oswald:500');
+@import url('https://fonts.googleapis.com/css?family=Overpass+Mono:400,700');
 
-body, h1, h2, h3 {
-	font-family: 'Oswald', sans-serif;
+* {
+	box-sizing: border-box /* Why the hell isn't this the default, W3C? */
+}
+
+:root {
+	/* Color definitions */
+	--bg: #fff;
+	--bg-alt: #ddd;
+	--text: #000;
+	--text-alt: #333;
+	--accent: #d05809;
+	color: var(--text);
+}
+
+h1 {
+	font-family: "Oswald";
+	font-weight: 500;
+}
+* {
+	font-family: "Overpass Mono";
 	font-weight: 400;
+}
+b, strong {
+	font-weight: 700;
+}
+html {
+	background-color: var(--bg-alt);
 }
 
 body {
-	width: 60%;
+	width: 70%;
+	min-height: 100vh;
+	min-width: 40em;
 	margin: 0 auto;
+	background-color: var(--bg);
+	box-shadow: 0px 0px 10rem 2rem #0003;
 }
 
 .halfpage {
@@ -22,29 +51,67 @@ body {
 }
 
 #titleContainer {
-	text-align: center;
+	background-color: var(--text-alt);
+	padding: 0.1rem 3rem;
+	width: auto;
 }
 
-#titleBox {
-	display: inline-block;
+#subtitleContainer {
+	background-color: var(--accent);
+	padding: 0.1rem 3rem;
+	width: auto;
 }
 
 #gameTitle {
+	font-size: 3em;
+	margin: 0 auto;
+	color: var(--bg);
+}
+
+#gameSubtitle {
+	font-size: 1.5em;
+	margin: 0 auto;
+	color: var(--bg);
+}
+
+#mainContent {
+	padding: 0em 5em;
+}
+
+.tab {
+	width: 100%;
+	height: 2em;
+	padding: 0px auto;
+	margin: 0px auto;
+	border-bottom: 5px solid var(--accent);
 	text-align: left;
-	color: #555555;
-	margin-bottom: -5px;
-	font-weight: bold;
+	align-content: left;
+}
+
+.tabText {
+	line-height: 1.4em;
+	font-size: 1.7em;
+	height: 100%;
+	width: 20rem;
+	text-align: center;
+	vertical-align: middle;
+	color: var(--bg);
+	background-color: var(--accent);
+}
+
+button {
+	color: var(--bg);
+	font-size: 1.2em;
+	text-align: center;
+	width: 10rem;
+	background-color: var(--text-alt);
+	padding: 0.5rem 0rem 0.3rem;
+	border: none;
 }
 
 #yourId {
 	width: 100%;
-	overflow-x: scroll;
-	background: rgb(220, 220, 220);
-	padding: 10px 0px 10px 0px;
-}
-
-.subtitle {
-	margin-top: 0px;
-	color: #FF7930;
-	font-weight: normal;
+	overflow-x: auto;
+	background: var(--bg-alt);
+	padding: 1rem
 }
