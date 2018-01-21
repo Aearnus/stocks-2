@@ -169,13 +169,15 @@ post "/createstock" do
         "desc" => stockDesc,
         "time" => Time.now.to_i,
         "shares" => stockAmount,
-        "createdBy" => "#{userId}",
+        "createdBy" => userId,
         "history" => [
             {
                 "transaction" => "buy",
                 "time" => Time.now.to_i,
                 "amount" => stockAmount,
-                "value" => shareCost
+                "value" => shareCost,
+                "uuid" => SecureRandom.uuid,
+                "userId" => userId
             }
         ],
         "averageValue" => shareCost
@@ -265,7 +267,7 @@ get "/stockinfo/*" do |stockName|
     if !check_if_stock_exists(stockName)
         return data_return(false, JSON.generate({error: "Invalid stock name!", errorWith: "stockName"}))
     else
-        return data_return(true, $stockCache[stockName])
+        return data_return(true, sanitize_stock($stockCache[stockName]))
     end
 end
 
@@ -337,9 +339,9 @@ get "/liststocks" do
         n = $stockCache.length
     end
     if criteria == "top"
-        return data_return(true, $stockCache.values.sort_by { |stock| stock["averageValue"] }[-n .. -1].reverse)
+        return data_return(true, $stockCache.values.sort_by { |stock| stock["averageValue"] }[-n .. -1].reverse.map{|stock| sanitize_stock(stock)})
     elsif criteria == "new"
-        return data_return(true, $stockCache.values.sort_by { |stock| stock["time"] }[-n .. -1].reverse)
+        return data_return(true, $stockCache.values.sort_by { |stock| stock["time"] }[-n .. -1].reverse.map{|stock| sanitize_stock(stock)})
     else
         return data_return(false, JSON.generate({error: "Unknown criteria: #{criteria}", errorWith: "criteria"}))
     end

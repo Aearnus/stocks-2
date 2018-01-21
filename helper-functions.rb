@@ -113,3 +113,19 @@ def get_stock_value(stockObject, transactions)
     end
     return totalValue / transactions
 end
+
+############################################################
+# sanitize_stock(stock)
+# Removes sensitive information from the stock object
+# Arguments:
+#   stock: the stock object to sanitize
+# Return value:
+#   A stock object, minus transaction userId, or stock createdBy
+############################################################
+def sanitize_stock(stock)
+    stock["createdBy"] = ""
+    stock["history"].each_with_index do |_, index|
+        stock["history"][index]["userId"] = ""
+    end
+    return stock
+end

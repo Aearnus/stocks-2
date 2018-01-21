@@ -30,13 +30,17 @@ stock:
             --SELL denotes that someone has created a sell offer, not that it was sold.
             "time": <unix timestamp>,
             "amount": <shares transferred>,
-            "value": <monetary value of 1 share>
+            "value": <monetary value of 1 share>,
+            "uuid": <special id of the transaction>,
+            "userId": <internal identification of the seller. SHOULD BE SANITIZED>
         },
         {
             "transaction": "buy" or "sell",
             "time": <unix timestamp>,
             "amount": <shares transferred>,
-            "value": <monetary value of 1 share>
+            "value": <monetary value of 1 share>,
+            "uuid": <special id of the transaction>,
+            "userId": <internal identification of the seller. SHOULD BE SANITIZED>
         }
         ...
     ],
