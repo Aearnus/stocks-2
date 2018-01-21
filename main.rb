@@ -29,17 +29,59 @@ def data_return(res, data)
     "{\"result\": #{res}, \"data\": #{data}}"
 end
 
+def check_login_validity(uuid)
+    puts "TESTING UUID #{uuid}"
+    if uuid.length != 36
+        return false
+    end
+    File.foreach("id-list") do |fileUuid|
+        if uuid == fileUuid.chomp
+            puts "UUID GOOD"
+            return true
+        end
+    end
+    puts "UUID BAD"
+    return false
+end
+def check_if_stock_exists(stock)
+    puts "TESTING STOCK #{stock}"
+    if stock.length > 10
+        return false
+    end
+    File.foreach("stock-list") do |fileStock|
+        if stock == fileStock.chomp
+            puts "STOCK EXISTS"
+            return true
+        end
+    end
+    puts "STOCK DOESN'T EXIST"
+    return false
+end
+
 assert_dir "ids"
 assert_dir "stocks"
 assert_dir "market"
 assert_file "id-list", ""
 assert_file "stock-list", ""
 
+############################################################
+# Automatic redirect to homepage
+# GET params:
+#   none
+# Return value:
+#   Redirect to index.html
+############################################################
 get "/" do
     redirect "/index.html"
 end
 
-#login stuff
+############################################################
+# Creates a new user ID to use for login and requests
+# GET params:
+#   none
+# Return value:
+#   JSON: {"id": "<user id>"}
+############################################################
 get "/newId" do
     userId = SecureRandom.uuid
     defaultIdStats = {
@@ -56,20 +98,14 @@ get "/newId" do
     end
     "{\"id\":\"#{userId}\"}"
 end
-def check_login_validity(uuid)
-    puts "TESTING UUID #{uuid}"
-    if uuid.length != 36
-        return false
-    end
-    File.foreach("id-list") do |fileUuid|
-        if uuid == fileUuid.chomp
-            puts "UUID GOOD"
-            return true
-        end
-    end
-    puts "UUID BAD"
-    return false
-end
+
+############################################################
+# Logs into an account using a user ID
+# POST params:
+#   userId: the user ID of the user wishing to log in
+# Return value:
+#   Redirect to either /login-fail.html or /trade.html
+############################################################
 post "/login" do
     userId = params["userId"]
     if !check_login_validity(userId)
@@ -78,6 +114,16 @@ post "/login" do
         redirect "/trade.html"
     end
 end
+
+############################################################
+# Checks a user ID to see if it exists, through check_login_validity
+# POSSIBLE EXPLOIT: user enumeration. Is this actually a bad thing?
+# I'm not sure, due to the improbability of an ID conflict
+# POST params:
+#   userId: the user ID to check
+# Return value:
+#   JSON: {"result": true/false}
+############################################################
 post "/verifylogin" do
     userId = params["userId"]
     if check_login_validity(userId)
@@ -87,22 +133,18 @@ post "/verifylogin" do
     end
 end
 
-#begin game functions
-def check_if_stock_exists(stock)
-    puts "TESTING STOCK #{stock}"
-    if stock.length > 10
-        return false
-    end
-    File.foreach("stock-list") do |fileStock|
-        if stock == fileStock.chomp
-            puts "STOCK EXISTS"
-            return true
-        end
-    end
-    puts "STOCK DOESN'T EXIST"
-    return false
-end
-#create a stock
+
+
+############################################################
+# Hook to create a new publicly traded stock
+# POST params:
+#   stockName: the name of the stock to create. 2-9 alphanumeric characters
+#   stockDesc: the description of the stock to be created. 4-100 alphanumeric characters
+#   stockAmount: the amount of stocks to create. integer > 200
+#   userId: the id of the user that wishes to buy a stock
+# Return value:
+#   none
+############################################################
 post "/createstock" do
     shareCost = 100
     stockName = params["stockName"].upcase;
@@ -172,6 +214,13 @@ post "/createstock" do
     end
 end
 
+############################################################
+# Hook to buy a stock
+# POST params:
+#   stockName: the stock to buy
+#   stockAmount: the amount of stocks to buy
+#   userId: the id of the user that wishes to buy a stock
+############################################################
 post "/buystock" do
     stockName = params["stockName"].upcase;
     shareAmount = params["stockAmount"].to_i;
@@ -191,3 +240,12 @@ post "/buystock" do
     #    data_return(false, JSON.generate({error: "You don't have enough money to buy #{stockAmount} shares! (required: $#{stockAmount * shareCost})", errorWith: "stockAmount"}))
     #end
 end
+
+############################################################
+# Creates a new user ID to use for login and requests
+# GET params:
+#   none
+# Return value:
+#   JSON: {"id": "<user id>"}
+############################################################
+get "/stock/*" do
