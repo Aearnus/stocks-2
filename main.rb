@@ -148,7 +148,7 @@ post "/createstock" do
     user = JSON.parse(File.read("ids/#{userId}"))
     #make sure the user has enough money
     if (stockAmount * shareCost > user["money"])
-        data_return(false, JSON.generate({error: "You don't have enough money to buy #{stockAmount} shares! (required: $#{stockAmount * shareCost})", errorWith: "stockAmount"}))
+        return data_return(false, JSON.generate({error: "You don't have enough money to buy #{stockAmount} shares! (required: $#{stockAmount * shareCost})", errorWith: "stockAmount"}))
     end
     #finally, it's gucci - create the stock
     defaultStock = {
@@ -207,11 +207,11 @@ post "/buystock" do
     userId = params["userId"];
     #make sure user exists
     if !check_login_validity(userId)
-        data_return(false, JSON.generate({error: "Invalid login token!", errorWith: "userId"}))
+        return data_return(false, JSON.generate({error: "Invalid login token!", errorWith: "userId"}))
     end
     #make sure stock exists
     if !check_if_stock_exists(stockName)
-        data_return(false, JSON.generate({error: "This stock doesn't exist!", errorWith: "stockName"}))
+        return data_return(false, JSON.generate({error: "This stock doesn't exist!", errorWith: "stockName"}))
     end
     user = JSON.parse(File.read("ids/#{userId}"))
     #make sure the user has enough money
@@ -244,5 +244,10 @@ end
 #       }
 ############################################################
 get "/stockinfo/*" do |stockName|
-
+    stockName.upcase!
+    if !check_if_stock_exists(stockName)
+        return data_return(false, JSON.generate({error: "Invalid stock name!", errorWith: "stockName"}))
+    else
+        return File.read("stocks/#{stockName}")
+    end
 end
