@@ -58,6 +58,9 @@ function funnyName() {
         "Laissez-Faire",
         "Tell Me My Odds",
         "Bury Me In My Money",
+        "Why Are You Here?",
+        "Bitcoin Edition",
+        "The Market Crashes Today"
     ]
     var finalName = nameArray[Math.floor(Math.random() * nameArray.length)];
     document.title = "Stocks 2: " + finalName;
