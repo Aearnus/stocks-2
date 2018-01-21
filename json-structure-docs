@@ -19,6 +19,7 @@ stock:
     "name": "<stock name>",
     --descriptions can be up to 100 characters long
     "desc": "<stock description>",
+    "time": <unix timestamp>
     --minimum amount of shares to start a stock with is 200
     "shares": 200,
     "createdBy": "<id of user>",
@@ -36,7 +37,8 @@ stock:
             "value": <monetary value of 1 share>
         }
         ...
-    ]
+    ],
+    "averageValue": <value, set by get_stock_value in helper-functions.rb>
 }
 
 this populates the market/ folder, with subfolders names with names of stocks, with files named <random uuid>

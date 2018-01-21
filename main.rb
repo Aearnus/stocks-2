@@ -154,6 +154,7 @@ post "/createstock" do
     defaultStock = {
         name: stockName,
         desc: stockDesc,
+        time: Time.now.to_i,
         shares: stockAmount,
         createdBy: "#{userId}",
         history: [
@@ -163,7 +164,8 @@ post "/createstock" do
                 amount: stockAmount,
                 value: shareCost
             }
-        ]
+        ],
+        averageValue: shareCost
     }
     #write the stock to disk
     File.open("stock-list", "a") do |f|
@@ -231,7 +233,7 @@ end
 #       {
 #           "result": true,
 #           "data": {
-
+#               <check json-structure-docs for stocks/ format>
 #           }
 #       }
 #   On failure:
@@ -248,6 +250,43 @@ get "/stockinfo/*" do |stockName|
     if !check_if_stock_exists(stockName)
         return data_return(false, JSON.generate({error: "Invalid stock name!", errorWith: "stockName"}))
     else
-        return File.read("stocks/#{stockName}")
+        return data_return(true, File.read("stocks/#{stockName}"))
+    end
+end
+
+############################################################
+# GET /liststocks
+# Lists out the top n stocks by some criteria
+# GET params:
+#   criteria: How the stocks are sorted. Possible values:
+#       criteria=top: The top n stocks by value
+#       criteria=new: The newest n stocks
+#   n: The amount of stocks to return. 1 <= n <= 100
+# Return value:
+#   [
+#       <top stock (check json-structure-docs for stocks/ format)>,
+#       <second stock (check json-structure-docs for stocks/ format)>,
+#       ...
+#   ]
+# Important note: this will only return as many stocks as exist, no more.
+# So, n may not always be exactly the amount returned.
+############################################################
+get "/liststocks" do
+    # this has to slurp every stock in memory before running! this is bad!
+    # TODO: load and keep stocks in memory before running this function
+    criteria = params["criteria"]
+    n = params["n"].to_i
+    stocksList = []
+    File.readlines("stock-list") do |stock|
+        stocksList << JSON.parse(File.read("stocks/#{stock}"))
+    end
+    if n > stocksList.length
+        n = stocksList.length
+    end
+    if criteria == "top"
+        return stocksList.sort_by { |stock| stock["averageValue"] }[-n .. -1].reverse
+    end
+    if criteria == "new"
+        return stocksList.sort_by { |stock| stock["time"] }[-n .. -1].reverse
     end
 end

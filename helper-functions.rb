@@ -34,6 +34,14 @@ def check_login_validity(uuid)
     puts "UUID BAD"
     return false
 end
+
+############################################################
+# check_if_stock_exists(stock)
+# Arguments:
+#   stock (string): which stock to check for
+# Return value:
+#   true/false
+############################################################
 def check_if_stock_exists(stock)
     puts "TESTING STOCK #{stock}"
     if stock.length > 10
@@ -48,3 +56,23 @@ def check_if_stock_exists(stock)
     puts "STOCK DOESN'T EXIST"
     return false
 end
+
+############################################################
+# get_stock_value(stockObject, transactions)
+# Arguments:
+#   stockObject (object, parsed from stock json): stock to find the average value of
+#   transactions (integer): how many of the most recent transactions to average
+# Return value:
+#   Number -- the average value of the stock
+############################################################
+def get_stock_value(stockObject, transactions) {
+    if transactions > stockObject["history"].length
+        transactions = stockObject["history"].length
+    end
+    validTransactions = stockObject["history"][-transactions .. -1]
+    totalValue = 0
+    validTransactions.each do |t|
+        totalValue += t["value"]
+    end
+    return totalValue / transactions
+}
