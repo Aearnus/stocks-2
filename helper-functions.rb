@@ -36,6 +36,7 @@ def check_login_validity(uuid)
     if uuid.length != 36
         return false
     end
+    # TODO: USE THE CACHE
     File.foreach("id-list") do |fileUuid|
         if uuid == fileUuid.chomp
             puts "UUID GOOD"
@@ -44,6 +45,31 @@ def check_login_validity(uuid)
     end
     puts "UUID BAD"
     return false
+end
+
+############################################################
+# Cache loading functions
+# NOTE: do not run these functions unless $stockCache and
+# $idCache have been defined
+############################################################
+def load_stock_cache
+    $stockCache = {}
+    File.foreach("stock-list") do |stock|
+        $stockCache[stock] = JSON.parse(File.read("stocks/#{stock.chomp}"))
+    end
+end
+def update_stock_cache(stockObject)
+    $stockCache[stockObject["name"]] = stockObject
+end
+
+def load_id_cache
+    $idCache = {}
+    File.foreach("id-list") do |id|
+        $idCache[id] = JSON.parse(File.read("ids/#{id.chomp}"))
+    end
+end
+def update_id_cache(idObject)
+    $idCache[idObject["id"]] = idObject
 end
 
 ############################################################

@@ -16,6 +16,15 @@ assert_file "id-list"
 assert_file "stock-list"
 
 ############################################################
+# Make sure to load the stock list and ID list into RAM so we don't
+# have to do a lot of disk I/O to search through it
+############################################################
+$stockCache = {}
+load_stock_cache()
+$idCache = {}
+load_id_cache()
+
+############################################################
 # GET /
 # Automatic redirect to homepage
 # GET params:
@@ -38,17 +47,20 @@ end
 get "/newId" do
     userId = SecureRandom.uuid
     defaultIdStats = {
-        id: "#{userId}",
-        money: 100,
-        createdStocks: [],
-        ownedStocks: []
+        "id" => "#{userId}",
+        "money" => 100,
+        "createdStocks" => [],
+        "ownedStocks" => []
     }
+    # Write the ID to disk and to cache
     File.open("id-list", "a") do |f|
         f.puts "#{userId}"
     end
     File.open("ids/#{userId}", "w") do |f|
         f.write JSON.generate(defaultIdStats)
     end
+    update_id_cache(defaultIdStats)
+
     return "{\"id\":\"#{userId}\"}"
 end
 
@@ -92,8 +104,6 @@ post "/verifylogin" do
         return boolnum_return(false)
     end
 end
-
-
 
 ############################################################
 # POST /createstock
@@ -148,6 +158,7 @@ post "/createstock" do
     if (stockAmount < 200)
         return data_return(false, JSON.generate({error: "You must buy at least 200 shares to create a stock!", errorWith: "stockAmount"}))
     end
+
     user = JSON.parse(File.read("ids/#{userId}"))
     #make sure the user has enough money
     if (stockAmount * shareCost > user["money"])
@@ -155,28 +166,29 @@ post "/createstock" do
     end
     #finally, it's gucci - create the stock
     defaultStock = {
-        name: stockName,
-        desc: stockDesc,
-        time: Time.now.to_i,
-        shares: stockAmount,
-        createdBy: "#{userId}",
-        history: [
+        "name" => stockName,
+        "desc" => stockDesc,
+        "time" => Time.now.to_i,
+        "shares" => stockAmount,
+        "createdBy" => "#{userId}",
+        "history" => [
             {
-                transaction: "buy",
-                time: Time.now.to_i,
-                amount: stockAmount,
-                value: shareCost
+                "transaction" => "buy",
+                "time" => Time.now.to_i,
+                "amount" => stockAmount,
+                "value" => shareCost
             }
         ],
-        averageValue: shareCost
+        "averageValue" => shareCost
     }
-    #write the stock to disk
+    #write the stock to disk and to cache
     File.open("stock-list", "a") do |f|
         f.puts "#{stockName}"
     end
     File.open("stocks/#{stockName}", "w") do |f|
         f.write JSON.generate(defaultStock)
     end
+    update_stock_cache(defaultStock)
     #make the market listing folder
     Dir.mkdir("market/#{stockName}")
     #write the user's new stock portfolio, now containing this stock
@@ -185,6 +197,8 @@ post "/createstock" do
     File.open("ids/#{userId}", "w") do |f|
         f.write JSON.generate(user)
     end
+    update_id_cache(user)
+
     boolnum_return(true)
 end
 
@@ -219,7 +233,7 @@ post "/buystock" do
     if !check_if_stock_exists(stockName)
         return data_return(false, JSON.generate({error: "This stock doesn't exist!", errorWith: "stockName"}))
     end
-    user = JSON.parse(File.read("ids/#{userId}"))
+    user = $idCache[userId]
     #make sure the user has enough money
     #TODO: market listings, do those first. (aka /sellstock)
     #if (shareAmount * shareCost > user["money"])
@@ -254,15 +268,37 @@ get "/stockinfo/*" do |stockName|
     if !check_if_stock_exists(stockName)
         return data_return(false, JSON.generate({error: "Invalid stock name!", errorWith: "stockName"}))
     else
-        return data_return(true, File.read("stocks/#{stockName}"))
+        return data_return(true, $stockCache[stockName])
     end
 end
 
+############################################################
+# GET /idinfo/<stock name>
+# Gets information about a certain user
+# GET params:
+#   URL param: user ID
+# Return value:
+#   On success:
+#       {
+#           "result": true,
+#           "data": {
+#               <check json-structure-docs for ids/ format>
+#           }
+#       }
+#   On failure:
+#       {
+#           "result": false,
+#           "data": {
+#               "error": "<error message>",
+#               "errorWith": "<param>"
+#           }
+#       }
+############################################################
 get "/idinfo/*" do |id|
     if !check_login_validity(id)
         return data_return(false, JSON.generate({error: "Invalid user ID!", errorWith: "userId"}))
     else
-        return data_return(true, File.read("ids/#{id}"))
+        return data_return(true, $idCache[id])
     end
 end
 
@@ -275,33 +311,38 @@ end
 #       criteria=new: The newest n stocks
 #   n: The amount of stocks to return. 1 <= n <= 100
 # Return value:
-#   [
-#       <top stock (check json-structure-docs for stocks/ format)>,
-#       <second stock (check json-structure-docs for stocks/ format)>,
-#       ...
-#   ]
+#   On success:
+#       {
+#           "result": true,
+#           "data": [
+#               <top stock (check json-structure-docs for stocks/ format)>,
+#               <second stock (check json-structure-docs for stocks/ format)>,
+#               ...
+#           ]
+#       }
+#   On failure:
+#       {
+#           "result": false,
+#           "data": {
+#               "error": "<error message>",
+#               "errorWith": "<param>"
+#           }
+#       }
 # Important note: this will only return as many stocks as exist, no more.
 # So, n may not always be exactly the amount returned.
-# TODO: FIX THIS DOCUMENTATION -- THERE IS ERROR CONTROL
 ############################################################
 get "/liststocks" do
-    # this has to slurp every stock in memory before running! this is bad!
-    # TODO: load and keep stocks in memory before running this function
     return if !assert_params(params, "criteria", "n")
     criteria = params["criteria"].chomp
     n = params["n"].to_i
-    stocksList = []
-    File.foreach("stock-list") do |stock|
-        stocksList << JSON.parse(File.read("stocks/#{stock.chomp}"))
-    end
-    puts "STOCKSLIST: #{stocksList}"
-    if n > stocksList.length
-        n = stocksList.length
+
+    if n > $stockCache.length
+        n = $stockCache.length
     end
     if criteria == "top"
-        return data_return(true, stocksList.sort_by { |stock| stock["averageValue"] }[-n .. -1].reverse)
+        return data_return(true, $stockCache.values.sort_by { |stock| stock["averageValue"] }[-n .. -1].reverse)
     elsif criteria == "new"
-        return data_return(true, stocksList.sort_by { |stock| stock["time"] }[-n .. -1].reverse)
+        return data_return(true, $stockCache.values.sort_by { |stock| stock["time"] }[-n .. -1].reverse)
     else
         return data_return(false, JSON.generate({error: "Unknown criteria: #{criteria}", errorWith: "criteria"}))
     end
