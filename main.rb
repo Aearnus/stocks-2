@@ -3,60 +3,11 @@ require "fileutils"
 require "securerandom"
 require "json"
 
+require_relative "helper-functions.rb"
+
 set :bind, "0.0.0.0"
 set :port, 4567
 set :public_folder, "public"
-
-def assert_dir(dirName)
-    if !File.directory?(dirName)
-    	Dir.mkdir(dirName)
-    end
-end
-def assert_file(fileName, defaultText)
-    if !File.exist?(fileName)
-    	File.open(fileName, "w") do |f|
-            f.write defaultText
-        end
-    end
-end
-def string_return(res)
-    "{\"result\": \"#{res}\"}"
-end
-def boolnum_return(res)
-    "{\"result\": #{res}}"
-end
-def data_return(res, data)
-    "{\"result\": #{res}, \"data\": #{data}}"
-end
-
-def check_login_validity(uuid)
-    puts "TESTING UUID #{uuid}"
-    if uuid.length != 36
-        return false
-    end
-    File.foreach("id-list") do |fileUuid|
-        if uuid == fileUuid.chomp
-            puts "UUID GOOD"
-            return true
-        end
-    end
-    puts "UUID BAD"
-    return false
-end
-def check_if_stock_exists(stock)
-    puts "TESTING STOCK #{stock}"
-    if stock.length > 10
-        return false
-    end
-    File.foreach("stock-list") do |fileStock|
-        if stock == fileStock.chomp
-            puts "STOCK EXISTS"
-            return true
-        end
-    end
-    puts "STOCK DOESN'T EXIST"
-    return false
-end
 
 assert_dir "ids"
 assert_dir "stocks"
@@ -271,12 +222,27 @@ post "/buystock" do
 end
 
 ############################################################
-# GET /stock/<stock name>
+# GET /stockinfo/<stock name>
 # Gets information about a certain named stock
 # GET params:
-#   none
+#   URL param: stockName
 # Return value:
-#   JSON: {"id": "<user id>"}
+#   On success:
+#       {
+#           "result": true,
+#           "data": {
+
+#           }
+#       }
+#   On failure:
+#       {
+#           "result": false,
+#           "data": {
+#               "error": "<error message>",
+#               "errorWith": "<param>"
+#           }
+#       }
 ############################################################
-get "/stock/*" do
+get "/stockinfo/*" do |stockName|
+
 end
