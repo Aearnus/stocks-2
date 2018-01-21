@@ -1,13 +1,13 @@
+require 'fileutils'
+
 def assert_dir(dirName)
     if !File.directory?(dirName)
     	Dir.mkdir(dirName)
     end
 end
-def assert_file(fileName, defaultText)
+def assert_file(fileName)
     if !File.exist?(fileName)
-    	File.open(fileName, "w") do |f|
-            f.write defaultText
-        end
+    	FileUtils.touch(fileName)
     end
 end
 

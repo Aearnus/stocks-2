@@ -12,8 +12,8 @@ set :public_folder, "public"
 assert_dir "ids"
 assert_dir "stocks"
 assert_dir "market"
-assert_file "id-list", ""
-assert_file "stock-list", ""
+assert_file "id-list"
+assert_file "stock-list"
 
 ############################################################
 # GET /
@@ -288,12 +288,11 @@ get "/liststocks" do
     # this has to slurp every stock in memory before running! this is bad!
     # TODO: load and keep stocks in memory before running this function
     return if !assert_params(params, "criteria", "n")
-    criteria = params["criteria"]
+    criteria = params["criteria"].chomp
     n = params["n"].to_i
     stocksList = []
-    File.readlines("stock-list") do |stock|
-        puts "READING STOCK #{stock}"
-        stocksList << JSON.parse(File.read("stocks/#{stock}"))
+    File.foreach("stock-list") do |stock|
+        stocksList << JSON.parse(File.read("stocks/#{stock.chomp}"))
     end
     puts "STOCKSLIST: #{stocksList}"
     if n > stocksList.length
