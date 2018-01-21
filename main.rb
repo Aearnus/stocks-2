@@ -61,6 +61,7 @@ end
 #   Redirect to either /login-fail.html or /trade.html
 ############################################################
 post "/login" do
+    return if !assert_params(params, "userId")
     userId = params["userId"]
     if !check_login_validity(userId)
         redirect "/login-fail.html"
@@ -83,6 +84,7 @@ end
 #       {"result": false}
 ############################################################
 post "/verifylogin" do
+    return if !assert_params(params, "userId")
     userId = params["userId"]
     if check_login_validity(userId)
         return boolnum_return(true)
@@ -205,6 +207,7 @@ end
 #       }
 ############################################################
 post "/buystock" do
+    return if !assert_params(params, "stockName", "stockAmount", "userId")
     stockName = params["stockName"].upcase;
     shareAmount = params["stockAmount"].to_i;
     userId = params["userId"];
@@ -279,6 +282,7 @@ end
 #   ]
 # Important note: this will only return as many stocks as exist, no more.
 # So, n may not always be exactly the amount returned.
+# TODO: FIX THIS DOCUMENTATION -- THERE IS ERROR CONTROL
 ############################################################
 get "/liststocks" do
     # this has to slurp every stock in memory before running! this is bad!
@@ -288,15 +292,18 @@ get "/liststocks" do
     n = params["n"].to_i
     stocksList = []
     File.readlines("stock-list") do |stock|
+        puts "READING STOCK #{stock}"
         stocksList << JSON.parse(File.read("stocks/#{stock}"))
     end
+    puts "STOCKSLIST: #{stocksList}"
     if n > stocksList.length
         n = stocksList.length
     end
     if criteria == "top"
-        return stocksList.sort_by { |stock| stock["averageValue"] }[-n .. -1].reverse
-    end
-    if criteria == "new"
-        return stocksList.sort_by { |stock| stock["time"] }[-n .. -1].reverse
+        return data_return(true, stocksList.sort_by { |stock| stock["averageValue"] }[-n .. -1].reverse)
+    elsif criteria == "new"
+        return data_return(true, stocksList.sort_by { |stock| stock["time"] }[-n .. -1].reverse)
+    else
+        return data_return(false, JSON.generate({error: "Unknown criteria: #{criteria}", errorWith: "criteria"}))
     end
 end
