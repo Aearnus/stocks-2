@@ -115,3 +115,15 @@ button {
 	background: var(--bg-alt);
 	padding: 1rem
 }
+
+.leftFloat {
+	float: left;
+}
+
+.rightFloat {
+	float: right;
+}
+
+section {
+	display: block;
+}

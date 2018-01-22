@@ -22,42 +22,60 @@
 			</h1>
 		</div>
 		<div id="mainContent">
-			<div class="tab">
-				<h2 class="tabText">
-					Your Portfolio
-				</h2>
-			</div>
-			<div class="tab">
-				<h2 class="tabText">
-					Browse Stocks
-				</h2>
-			</div>
-			<div class="tab">
-				<h2 class="tabText">
-					Found a Company
-				</h2>
-			</div>
-			<div class=tabContents id=bizContent>
-				<form action="/createstock" method="post">
-					<p>
-						<label for="createStockStockName">Stock name:</label>
-						<input type="text" id="createStockStockName" name="stockName">
-					</p>
-					<p>
-						<label for="createStockStockDesk">Stock description:</label>
-						<input type="text" id="createStockStockDesc" name="stockDesc">
-					</p>
-					<p>
-						<label for="createStockStockAmount">Amount of stocks to create:</label>
-						<input type="text" id="createStockStockAmount" name="stockAmount">
-					</p>
-					<input type="text" id="createStockUserId" name="userId" hidden="true">
+			<section>
+				<div class="tab">
+					<h2 class="tabText">
+						Your Portfolio
+					</h2>
+				</div>
+				<div class="leftFloat">
+					Liquid funds: $
+					<span id="money">
+						Loading...
+					</span>
+				</div>
+				<div class="rightFloat">
+					Total value: $
+					<span id="totalValue">
+						Loading...
+					</span>
+				</div>
+			</section>
+			<section>
+				<div class="tab">
+					<h2 class="tabText">
+						Browse Stocks
+					</h2>
+				</div>
+			</section>
+			<section>
+				<div class="tab">
+					<h2 class="tabText">
+						Found a Company
+					</h2>
+				</div>
+				<div class=tabContents id=bizContent>
+					<form action="/createstock" method="post">
+						<p>
+							<label for="createStockStockName">Stock name:</label>
+							<input type="text" id="createStockStockName" name="stockName">
+						</p>
+						<p>
+							<label for="createStockStockDesk">Stock description:</label>
+							<input type="text" id="createStockStockDesc" name="stockDesc">
+						</p>
+						<p>
+							<label for="createStockStockAmount">Amount of stocks to create:</label>
+							<input type="text" id="createStockStockAmount" name="stockAmount">
+						</p>
+						<input type="text" id="createStockUserId" name="userId" hidden="true">
 
-					<button type="submit">
-						Create
-					</button>
-				</form>
-			</div>
+						<button type="submit">
+							Create
+						</button>
+					</form>
+				</div>
+			</section>
 		</div>
 	</body>
 </html>

@@ -1,5 +1,3 @@
-GLOBALIP = "10.0.1.22"
-
 function init() {
     funnyName();
 }

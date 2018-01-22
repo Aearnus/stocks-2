@@ -391,7 +391,7 @@ get "/idinfo/*" do |id|
     if !check_login_validity(id)
         return data_return(false, JSON.generate({error: "Invalid user ID!", errorWith: "userId"}))
     else
-        return data_return(true, $idCache[id])
+        return data_return(true, JSON.generate($idCache[id]))
     end
 end
 
