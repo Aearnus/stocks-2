@@ -4,12 +4,17 @@ user:
     "id": "<user id>",
     "money": 100,
     "createdStocks": [<list of stock names>],
-    "ownedStocks": [
-        {
+    "ownedStocks": {
+        "<stock name>": {
             "name": "<stock name>",
             "shares": amount of shares
-        }
-    ]
+        },
+        "<stock name>": {
+            "name": "<stock name>",
+            "shares": amount of shares
+        },
+        ...
+    }
 }
 
 this populates the stocks/ folder, with files named <stock name>

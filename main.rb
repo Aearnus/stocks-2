@@ -52,12 +52,7 @@ get "/newId" do
         "ownedStocks" => []
     }
     # Write the ID to disk and to cache
-    File.open("id-list", "a") do |f|
-        f.puts "#{userId}"
-    end
-    File.open("ids/#{userId}", "w") do |f|
-        f.write JSON.generate(defaultIdStats)
-    end
+    write_id(defaultIdStats, true)
     update_id_cache(defaultIdStats)
 
     return "{\"id\":\"#{userId}\"}"
@@ -183,19 +178,12 @@ post "/createstock" do
         "averageValue" => shareCost
     }
     #write the stock to disk and to cache
-    File.open("stock-list", "a") do |f|
-        f.puts "#{stockName}"
-    end
-    File.open("stocks/#{stockName}", "w") do |f|
-        f.write JSON.generate(defaultStock)
-    end
+    write_stock(defaultStock, true)
     update_stock_cache(defaultStock)
     #write the user's new stock portfolio, now containing this stock
     user["createdStocks"] << stockName
     user["ownedStocks"] << {name: stockName, shares: stockAmount}
-    File.open("ids/#{userId}", "w") do |f|
-        f.write JSON.generate(user)
-    end
+    write_id(user, false)
     update_id_cache(user)
 
     boolnum_return(true)
@@ -208,6 +196,7 @@ end
 #   stockName: the stock to buy
 #   stockAmount: the amount of stocks to buy
 #   userId: the id of the user that wishes to buy a stock
+#   transactionId: the uuid of the transaction
 #   On success:
 #       {"result": true}
 #   On failure:
@@ -220,10 +209,11 @@ end
 #       }
 ############################################################
 post "/buystock" do
-    return if !assert_params(params, "stockName", "stockAmount", "userId")
+    return if !assert_params(params, "stockName", "stockAmount", "userId", "transactionId")
     stockName = params["stockName"].upcase;
     shareAmount = params["stockAmount"].to_i;
     userId = params["userId"];
+    transactionId = params["transactionId"];
     #make sure user exists
     if !check_login_validity(userId)
         return data_return(false, JSON.generate({error: "Invalid login token!", errorWith: "userId"}))
@@ -232,12 +222,50 @@ post "/buystock" do
     if !check_if_stock_exists(stockName)
         return data_return(false, JSON.generate({error: "This stock doesn't exist!", errorWith: "stockName"}))
     end
-    user = $idCache[userId]
+    stock = $stockCache[stockName]
+    #make sure transaction exists, and if so, save it
+    transaction = {}
+    transactionIndex = 0
+    stock["history"].each_with_index do |currentTransaction, i|
+        if currentTransaction["uuid"] == transactionId
+            transaction = currentTransaction
+            transactionIndex = i
+            break
+        end
+    end
+    #if the transaction didn't exist
+    if transaction == {}
+        return data_return(false, JSON.generate({error: "This transaction does not or no longer exists!", errorWith: "transactionId"}))
+    end
+    #if the transaction is of the wrong type
+    if transaction["transaction"] != "sell"
+        return data_return(false, JSON.generate({error: "This transaction has an invalid type!", errorWith: "transaction"}))
+    end
+
+    buyerUser = $idCache[userId]
+    sellerUser = $idCache[stock["createdBy"]]
     #make sure the user has enough money
-    #TODO: stock listings, do those first. (aka /sellstock)
-    #if (shareAmount * shareCost > user["money"])
-    #    data_return(false, JSON.generate({error: "You don't have enough money to buy #{stockAmount} shares! (required: $#{stockAmount * shareCost})", errorWith: "stockAmount"}))
-    #end
+    transactionCost = transaction["amount"] * transaction["value"]
+    if (transactionCost > user["money"])
+        data_return(false, JSON.generate({error: "You don't have enough money to buy #{stockAmount} shares! (required: $#{stockAmount * shareCost})", errorWith: "stockAmount"}))
+    end
+
+    #everything is good, let's commit the transaction
+    #first, change the "sell" to "buy"
+    stock["history"][transactionIndex]["transaction"] = "buy"
+    #then move the money out of the buyer's and into the seller's account
+    sellerUser["money"] += transactionCost
+    buyerUser["money"] -= transactionCost
+    #move the stocks into the buyer's account and out of the seller's account
+    buyerUser = modify_user_stocks(buyerUser, stockName, transaction["amount"])
+    sellerUser = modify_user_stocks(sellerUser, stockName, transaction["amount"])
+    #finally, update the caches and write to disk
+    update_stock_cache(stock)
+    update_id_cache(buyerUser)
+    update_id_cache(sellerUser)
+    write_stock(stock)
+    write_id(buyerUser)
+    write_id(sellerUser)
 end
 
 ############################################################

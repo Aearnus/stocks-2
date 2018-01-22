@@ -1,5 +1,8 @@
 require 'fileutils'
 
+############################################################
+# File assertion functions
+############################################################
 def assert_dir(dirName)
     if !File.directory?(dirName)
     	Dir.mkdir(dirName)
@@ -21,6 +24,9 @@ def assert_params(params, *neededParams)
     return true
 end
 
+############################################################
+# HTML/JSON return functions
+############################################################
 def string_return(res)
     "{\"result\": \"#{res}\"}"
 end
@@ -29,22 +35,6 @@ def boolnum_return(res)
 end
 def data_return(res, data)
     "{\"result\": #{res}, \"data\": #{data}}"
-end
-
-def check_login_validity(uuid)
-    puts "TESTING UUID #{uuid}"
-    if uuid.length != 36
-        return false
-    end
-    # TODO: USE THE CACHE
-    File.foreach("id-list") do |fileUuid|
-        if uuid == fileUuid.chomp
-            puts "UUID GOOD"
-            return true
-        end
-    end
-    puts "UUID BAD"
-    return false
 end
 
 ############################################################
@@ -70,6 +60,53 @@ def load_id_cache
 end
 def update_id_cache(idObject)
     $idCache[idObject["id"]] = idObject
+end
+
+############################################################
+# Disk IO functions
+############################################################
+def write_stock(stock, writeStockList)
+    if writeStockList
+        File.open("stock-list", "a") do |f|
+            f.puts "#{stock["name"]}"
+        end
+    end
+    File.open("stocks/#{stock["name"]}", "w") do |f|
+        f.write JSON.generate(stock)
+    end
+end
+def write_id(user, writeIdList)
+    if writeIdList
+        File.open("id-list", "a") do |f|
+            f.puts "#{user["id"]}"
+        end
+    end
+    File.open("ids/#{user["id"]}", "w") do |f|
+        f.write JSON.generate(user)
+    end
+end
+
+############################################################
+# check_login_validity(uuid)
+# Arguments:
+#   uuid (string): the user ID to check
+# Return value:
+#   true/false
+############################################################
+def check_login_validity(uuid)
+    puts "TESTING UUID #{uuid}"
+    if uuid.length != 36
+        return false
+    end
+    # TODO: USE THE CACHE
+    File.foreach("id-list") do |fileUuid|
+        if uuid == fileUuid.chomp
+            puts "UUID GOOD"
+            return true
+        end
+    end
+    puts "UUID BAD"
+    return false
 end
 
 ############################################################
@@ -128,4 +165,38 @@ def sanitize_stock(stock)
         stock["history"][index]["userId"] = ""
     end
     return stock
+end
+
+############################################################
+# modify_user_stocks(user, stockName, stockChange)
+# Arguments:
+#   user (user object): the user to be modified
+#   stockName (string): the stock which will be added/removed from the user
+#   stockChange (number): the amount to change the stock
+# Return value:
+#   user object on success
+#   unchanged user object on failure
+############################################################
+def modify_user_stocks(user, stockName, stockChange)
+    originalUser = user
+    #if they don't already own any of this stock
+    if user["ownedStocks"][stockName].nil?
+        user["ownedStocks"][stockName] = {}
+        user["ownedStocks"][stockName]["name"] = stockName
+        #make sure it doesn't try to take from a user with nothing
+        if stockChange < 0
+            return originalUser
+        end
+        #make the exchange
+        user["ownedStocks"][stockName]["shares"] += stockChange
+    else
+        #or, if they already own this stock
+        #make sure we're not taking more than the user has
+        if stockChange + user["ownedStocks"][stockName]["shares"] < 0
+            return originalUser
+        end
+        #if it's good, go ahead and do it
+        user["ownedStocks"][stockName]["shares"] += stockChange
+    end
+    return user
 end
