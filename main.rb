@@ -153,7 +153,7 @@ post "/createstock" do
         return data_return(false, JSON.generate({error: "You must buy at least 200 shares to create a stock!", errorWith: "stockAmount"}))
     end
 
-    user = JSON.parse(File.read("ids/#{userId}"))
+    user = $idCache[userId]
     #make sure the user has enough money
     if (stockAmount * shareCost > user["money"])
         return data_return(false, JSON.generate({error: "You don't have enough money to buy #{stockAmount} shares! (required: $#{stockAmount * shareCost})", errorWith: "stockAmount"}))

@@ -45,6 +45,8 @@ end
 def load_stock_cache
     $stockCache = {}
     File.foreach("stock-list") do |stock|
+        stock.chomp!
+        next if stock.empty?
         $stockCache[stock] = JSON.parse(File.read("stocks/#{stock.chomp}"))
     end
 end
@@ -55,6 +57,8 @@ end
 def load_id_cache
     $idCache = {}
     File.foreach("id-list") do |id|
+        id.chomp!
+        next if id.empty?
         $idCache[id] = JSON.parse(File.read("ids/#{id.chomp}"))
     end
 end
