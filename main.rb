@@ -193,6 +193,69 @@ post "/createstock" do
 end
 
 ############################################################
+# POST /sellstock
+# Hook to sell a stock
+# POST params:
+#   stockName: the stock to buy
+#   shareAmount: the amount of shares to sell
+#   sharePrice: what price to sell each share at
+#   userId: the id of the user that wishes to buy a stock
+#   On success:
+#       {"result": true}
+#   On failure:
+#       {
+#           "result": false,
+#           "data": {
+#               "error": "<error message>",
+#               "errorWith": "<param>"
+#           }
+#       }
+############################################################
+post "/sellstock" do
+    return if !assert_params(params, "stockName", "shareAmount", "sharePrice", "userId", "transactionId")
+    stockName = params["stockName"].upcase;
+    shareAmount = params["shareAmount"].to_i;
+    sharePrice = params["sharePrice"].to_i;
+    userId = params["userId"];
+    #make sure user exists
+    if !check_login_validity(userId)
+        return data_return(false, JSON.generate({error: "Invalid login token!", errorWith: "userId"}))
+    end
+    #make sure stock exists
+    if !check_if_stock_exists(stockName)
+        return data_return(false, JSON.generate({error: "This stock doesn't exist!", errorWith: "stockName"}))
+    end
+    user = $idCache[userId]
+    #make sure user has stock
+    if user["ownedStocks"][stockName].nil?
+        return data_return(false, JSON.generate({error: "This stock isn't in your portfolio!", errorWith: "stockName"}))
+    end
+    #make sure user has enough of stock
+    if user["ownedStocks"][stockName]["shares"] - shareAmount < 0
+        return data_return(false, JSON.generate({error: "You don't have enough of #{stockName}!", errorWith: "stockAmount"}))
+    end
+
+    #if all this is good, actually sell the stock!
+    stock = $stockCache[stockName]
+    #take the stock away from the user
+    user = modify_user_stocks(user, stockName, -shareAmount)
+    #add the transaction to the stock
+    stock["history"] << {
+        "transaction" => "sell",
+        "time" => Time.now.to_i,
+        "amount" => shareAmount,
+        "value" => sharePrice,
+        "uuid" => SecureRandom.uuid,
+        "userId" => userId
+    }
+    #finally, apply the changes to cache and disk
+    update_stock_cache(stock)
+    update_id_cache(user)
+    write_stock(stock)
+    write_id(user)
+end
+
+############################################################
 # POST /buystock
 # Hook to buy a stock
 # POST params:
