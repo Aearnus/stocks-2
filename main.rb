@@ -159,6 +159,9 @@ post "/createstock" do
         return data_return(false, JSON.generate({error: "You don't have enough money to buy #{stockAmount} shares! (required: $#{stockAmount * shareCost})", errorWith: "stockAmount"}))
     end
     #finally, it's gucci - create the stock
+    #first, take the money from the user
+    user["money"] -= stockAmount * shareCost
+    #then create the stock
     defaultStock = {
         "name" => stockName,
         "desc" => stockDesc,
