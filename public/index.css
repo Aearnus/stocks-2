@@ -12,6 +12,8 @@
 	--text: #000;
 	--text-alt: #333;
 	--accent: #d05809;
+	--positive: #da0000;
+	--negative: #26cd1e;
 	color: var(--text);
 }
 
@@ -128,12 +130,34 @@ section {
 	display: block;
 }
 
-.stockContainer {
+.stockTickerSmall {
 	display: block;
 	background-color: var(--text-alt);
-	width: 10rem;
+	width: 8rem;
+	height: 6rem;
+	padding: 1rem 1rem 1rem 1rem;
+}
+.stockTitle::before {
+	content: "$";
+}
+.stockTitle {
+	font-weight: bold;
+	border-bottom: 3px solid var(--accent);
+	color: var(--bg);
 }
 
 .fragment {
-	display: none;
+	/* display: none; */
+}
+
+#money::before {
+	content: "Liquid funds: $"
+}
+#totalValue::before {
+	content: "Total value: $"
+}
+
+.positiveChange
+.positiveChange::before {
+
 }

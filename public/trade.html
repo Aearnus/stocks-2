@@ -11,8 +11,12 @@
 		<script type="text/javascript" src="trading-functions.js"></script>
 	</head>
 	<body onload="init()">
-		<div class="stockContainer fragment">
-			
+		<div class="stockTickerSmall fragment">
+			<div class="stockTitle">STOCK</div>
+			<div class="stockValueTicker">
+			</div>
+			<div class="stockChangeTicker positiveChange">
+			</div>
 		</div>
 		<div id="titleContainer">
 			<h1 class="title" id="gameTitle">
@@ -31,18 +35,12 @@
 						Your Portfolio
 					</h2>
 				</div>
-				<div class="leftFloat">
-					Liquid funds: $
-					<span id="money">
-						Loading...
-					</span>
-				</div>
-				<div class="rightFloat">
-					Total value: $
-					<span id="totalValue">
-						Loading...
-					</span>
-				</div>
+				<span id="money">
+					Loading...
+				</span>
+				<span id="totalValue">
+					Loading...
+				</span>
 			</section>
 			<section>
 				<div class="tab">
