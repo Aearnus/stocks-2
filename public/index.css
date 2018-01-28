@@ -127,3 +127,13 @@ button {
 section {
 	display: block;
 }
+
+.stockContainer {
+	display: block;
+	background-color: var(--text-alt);
+	width: 10rem;
+}
+
+.fragment {
+	display: none;
+}
