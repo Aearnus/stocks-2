@@ -10,8 +10,19 @@ function init() {
     updateUserInfo();
     createExampleStocks();createExampleStocks();createExampleStocks();createExampleStocks();createExampleStocks();createExampleStocks();
 }
+
+function createSmallStockTicker(stockName, stockValue, stockChange) {
+    var template = i("stockTickerSmallTemplate").cloneNode(true).content;
+    template.querySelector("a").href = "stocks/" + stockName;
+    template.querySelector(".stockTitle").innerHTML = stockName;
+    template.querySelector(".stockValueTicker").innerHTML = stockValue;
+    template.querySelector(".stockChangeTicker").innerHTML = stockChange;
+    template.querySelector(".stockChangeTicker").classList.add(stockChange > 0 ? "positiveChange" : "negativeChange");
+    return template;
+}
 function createExampleStocks() {
-    i("stockList").appendChild(i("stockTickerSmallTemplate").cloneNode(true).content);
+    i("topStockList").appendChild(createSmallStockTicker("TEST", 1.00, 1.00));
+    i("newStockList").appendChild(createSmallStockTicker("TEST", 1.00, 1.00));
 }
 function updateUserInfo() {
     getRequest("/idinfo/" + localStorage.getItem("stocks2id"), function (req) {

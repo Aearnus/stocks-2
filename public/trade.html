@@ -11,13 +11,11 @@
 		<script type="text/javascript" src="trading-functions.js"></script>
 	</head>
 	<body onload="init()">
-		<template id="stockTickerSmallTemplate">
-			<div class="stockTickerSmall">
-				<div class="stockTitle">STOCK</div>
-				<div class="stockValueTicker">2.71</div>
-				<div class="stockChangeTicker positiveChange">3.14</div>
-			</div>
-		</template>
+		<template id="stockTickerSmallTemplate"><a href="stocks/STOCK"><div class="stockTickerSmall">
+			<div class="stockTitle">STOCK</div>
+			<div class="stockValueTicker">2.71</div>
+			<div class="stockChangeTicker">3.14</div>
+		</div></a></template>
 		<div id="titleContainer">
 			<h1 class="title" id="gameTitle">
 				Stocks 2
@@ -38,7 +36,7 @@
 				<span id="money">
 					Loading...
 				</span>
-				<span id="totalValue">
+				<span id="totalValue" class="rightalign">
 					Loading...
 				</span>
 			</section>
@@ -48,7 +46,19 @@
 						Browse Stocks
 					</h2>
 				</div>
-				<div id="stockList">
+				<p>
+					<label for="stockSearch">Search for a stock: </label>
+					<input type="text" id="stockSearch" name="stockName">
+				</p>
+				<div id="topStockList" class="halfpage">
+					<h3>
+						Top Stocks:
+					</h3>
+				</div>
+				<div id="newStockList" class="halfpage rightalign">
+					<h3>
+						New Stocks:
+					</h3>
 				</div>
 			</section>
 			<section>

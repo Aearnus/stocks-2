@@ -136,8 +136,9 @@ section {
 	background-color: var(--text-alt);
 	width: 8rem;
 	height: 6rem;
-	padding: 1rem 1rem 1rem 1rem;
-	margin: 1rem 1rem 1rem 1rem;
+	padding: 1rem;
+	margin: 2px;
+	text-align: center;
 }
 .stockTitle::before {
 	/* content: "$"; */
@@ -150,6 +151,8 @@ section {
 }
 .stockValueTicker {
 	float: left;
+	width: 100%;
+	text-align: left;
 	color: var(--bg-alt);
 }
 .stockValueTicker::before {
@@ -164,6 +167,8 @@ section {
 }
 
 .stockChangeTicker {
+	width: 100%;
+	text-align: right;
 	float: right;
 }
 .positiveChange {
