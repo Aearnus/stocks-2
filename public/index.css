@@ -2,7 +2,7 @@
 @import url('https://fonts.googleapis.com/css?family=Overpass+Mono:400,700');
 
 * {
-	box-sizing: border-box /* Why the hell isn't this the default, W3C? */
+	box-sizing: border-box; /* Why the hell isn't this the default, W3C? */
 }
 
 :root {
@@ -127,15 +127,17 @@ button {
 }
 
 section {
-	display: block;
+	display: inline-block;
+	width: 100%;
 }
 
 .stockTickerSmall {
-	display: block;
+	display: inline-block;
 	background-color: var(--text-alt);
 	width: 8rem;
 	height: 6rem;
 	padding: 1rem 1rem 1rem 1rem;
+	margin: 1rem 1rem 1rem 1rem;
 }
 .stockTitle::before {
 	/* content: "$"; */

@@ -8,10 +8,10 @@ function init() {
     });
     i("createStockUserId").value = localStorage.getItem("stocks2id");
     updateUserInfo();
-    createExampleStocks();
+    createExampleStocks();createExampleStocks();createExampleStocks();createExampleStocks();createExampleStocks();createExampleStocks();
 }
 function createExampleStocks() {
-    i("stockList").appendChild(i("stockTickerSmallTemplate").content);
+    i("stockList").appendChild(i("stockTickerSmallTemplate").cloneNode(true).content);
 }
 function updateUserInfo() {
     getRequest("/idinfo/" + localStorage.getItem("stocks2id"), function (req) {
