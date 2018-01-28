@@ -11,7 +11,7 @@ function init() {
     createExampleStocks();
 }
 function createExampleStocks() {
-    i("stockList").appendChild(i("stockTickerSmallFragment").content);
+    i("stockList").appendChild(i("stockTickerSmallTemplate").content);
 }
 function updateUserInfo() {
     getRequest("/idinfo/" + localStorage.getItem("stocks2id"), function (req) {
