@@ -8,8 +8,11 @@ function init() {
     });
     i("createStockUserId").value = localStorage.getItem("stocks2id");
     updateUserInfo();
+    createExampleStocks();
 }
-
+function createExampleStocks() {
+    i("stockList").appendChild(i("stockTickerSmallFragment").content);
+}
 function updateUserInfo() {
     getRequest("/idinfo/" + localStorage.getItem("stocks2id"), function (req) {
         console.log(req.responseText);

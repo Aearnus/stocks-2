@@ -138,7 +138,7 @@ section {
 	padding: 1rem 1rem 1rem 1rem;
 }
 .stockTitle::before {
-	content: "$";
+	/* content: "$"; */
 }
 .stockTitle {
 	font-weight: bold;
@@ -152,10 +152,6 @@ section {
 }
 .stockValueTicker::before {
 	content: "$"
-}
-
-.fragment {
-	/* display: none; */
 }
 
 #money::before {

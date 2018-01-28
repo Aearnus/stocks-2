@@ -1,21 +1,23 @@
 <!DOCTYPE html>
 
-<meta charset="UTF-8">
 <html>
 	<head>
+		<meta charset="UTF-8">
 		<title>
 			Stocks 2: Loading...
 		</title>
 		<link rel="stylesheet" type="text/css" href="index.css">
-		<script type="text/javascript" src="general-functions.js"></script>
-		<script type="text/javascript" src="trading-functions.js"></script>
+		<script type="text/javascript" src="general-functions.js"/>
+		<script type="text/javascript" src="trading-functions.js"/>
+		<fragment id="stockTickerSmallFragment">
+			<div class="stockTickerSmall">
+				<div class="stockTitle">STOCK</div>
+				<div class="stockValueTicker">2.71</div>
+				<div class="stockChangeTicker positiveChange">3.14</div>
+			</div>
+		</fragment>
 	</head>
 	<body onload="init()">
-		<div class="stockTickerSmall fragment">
-			<div class="stockTitle">STOCK</div>
-			<div class="stockValueTicker">2.71</div>
-			<div class="stockChangeTicker positiveChange">3.14</div>
-		</div>
 		<div id="titleContainer">
 			<h1 class="title" id="gameTitle">
 				Stocks 2
@@ -45,6 +47,8 @@
 					<h2 class="tabText">
 						Browse Stocks
 					</h2>
+					<div id="stockList">
+					</div>
 				</div>
 			</section>
 			<section>
