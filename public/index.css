@@ -12,8 +12,8 @@
 	--text: #000;
 	--text-alt: #333;
 	--accent: #d05809;
-	--positive: #da0000;
-	--negative: #26cd1e;
+	--negative: #da0000;
+	--positive: #26cd1e;
 	color: var(--text);
 }
 
@@ -143,7 +143,15 @@ section {
 .stockTitle {
 	font-weight: bold;
 	border-bottom: 3px solid var(--accent);
+	margin-bottom: 3px;
 	color: var(--bg);
+}
+.stockValueTicker {
+	float: left;
+	color: var(--bg-alt);
+}
+.stockValueTicker::before {
+	content: "$"
 }
 
 .fragment {
@@ -157,7 +165,22 @@ section {
 	content: "Total value: $"
 }
 
-.positiveChange
+.stockChangeTicker {
+	float: right;
+}
+.positiveChange {
+	color: var(--positive);
+}
 .positiveChange::before {
-
+	color: var(--positive);
+	content: "↑";
+	font-weight: bold;
+}
+.negativeChange {
+	color: var(--negative);
+}
+.negativeChange::before {
+	color: var(--negative);
+	content: "↓";
+	font-weight: bold;
 }
