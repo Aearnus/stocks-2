@@ -335,6 +335,25 @@ post "/buystock" do
 end
 
 ############################################################
+# GET /stock/<stock name>
+# Renders a webpage with info about the stock
+# GET params:
+#   URL param: stockName
+# Return value:
+#   On existing stock:
+#       Redirect to stock.erb
+#   On nonexistant stock:
+#       Redirect to stock-fail.html
+############################################################
+get "/stock/*" do |stockName|
+    if check_if_stock_exists(stockName)
+        erb :stock
+    else
+        redirect "/stock-fail.html"
+    end
+end
+
+############################################################
 # GET /stockinfo/<stock name>
 # Gets information about a certain named stock
 # GET params:
