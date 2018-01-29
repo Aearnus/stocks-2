@@ -14,7 +14,7 @@ function init() {
 function createSmallStockTicker(stockName, stockValue, stockChange) {
     console.log("Creating small stock ticker for stock " + stockName);
     var template = i("stockTickerSmallTemplate").cloneNode(true).content;
-    template.querySelector("a").href = "stocks/" + stockName;
+    template.querySelector("a").href = "stock/" + stockName;
     template.querySelector(".stockTitleSmall").innerHTML = stockName;
     template.querySelector(".stockValueTickerSmall").innerHTML = stockValue;
     template.querySelector(".stockChangeTickerSmall").innerHTML = stockChange;
@@ -28,7 +28,7 @@ function createLargeStockTicker(stockName, amountOwned) {
     var stockValue = 100;
     var stockDescription = "DESCRIPTION DESCRIPTION DESCRIPTION DESCRIPTION DESCRIPTION DESCRIPTION DESCRIPTION";
     var template = i("stockTickerLargeTemplate").cloneNode(true).content;
-    template.querySelector("a").href = "stocks/" + stockName;
+    template.querySelector("a").href = "stock/" + stockName;
     template.querySelector(".stockTitleLarge").innerHTML = stockName;
     template.querySelector(".stockValueTickerLarge").innerHTML = stockValue;
     template.querySelector(".stockChangeTickerLarge").innerHTML = stockChange;

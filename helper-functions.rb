@@ -125,6 +125,7 @@ def check_if_stock_exists(stock)
     if stock.length > 10
         return false
     end
+    # TODO: USE THE CACHE
     File.foreach("stock-list") do |fileStock|
         if stock == fileStock.chomp
             puts "STOCK EXISTS"

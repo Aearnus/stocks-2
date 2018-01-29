@@ -347,9 +347,9 @@ end
 ############################################################
 get "/stock/*" do |stockName|
     if check_if_stock_exists(stockName)
-        erb :stock
+        erb :stock, :locals => {:stockName => stockName}
     else
-        erb :'stock-fail'
+        erb :'stock-fail', :locals => {:stockName => stockName}
     end
 end
 
