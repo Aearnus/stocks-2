@@ -16,9 +16,9 @@ function createSmallStockTicker(stockName, stockValue, stockChange) {
     console.log("Creating small stock ticker for stock " + stockName);
     var template = i("stockTickerSmallTemplate").cloneNode(true).content;
     template.querySelector("a").href = "stock/" + stockName;
-    template.querySelector(".stockTitleSmall").innerHTML = stockName;
-    template.querySelector(".stockValueTickerSmall").innerHTML = stockValue;
-    template.querySelector(".stockChangeTickerSmall").innerHTML = stockChange;
+    template.querySelector(".stockTitleSmall").textContent = stockName;
+    template.querySelector(".stockValueTickerSmall").textContent = stockValue;
+    template.querySelector(".stockChangeTickerSmall").textContent = stockChange;
     template.querySelector(".stockChangeTickerSmall").classList.add(stockChange > 0 ? "positiveChange" : "negativeChange");
     return template;
 }
@@ -43,17 +43,17 @@ function createLargeStockTicker(stockName, amountOwned, parentNode) {
             var stock = jsonResponse["data"];
             stockValue = stock["averageValue"];
             stockDescription = stock["desc"];
-            template.getElementsByTagName("a").href = "stock/" + stockName;
-            template.querySelector(".stockTitleLarge").innerHTML = stockName;
-            template.querySelector(".stockValueTickerLarge").innerHTML = stockValue;
-            template.querySelector(".stockChangeTickerLarge").innerHTML = stockChange;
+            template.querySelector("a").href = "stock/" + stockName;
+            template.querySelector(".stockTitleLarge").textContent = stockName;
+            template.querySelector(".stockValueTickerLarge").textContent = stockValue;
+            template.querySelector(".stockChangeTickerLarge").textContent = stockChange;
             template.querySelector(".stockChangeTickerLarge").classList.add(stockChange > 0 ? "positiveChange" : "negativeChange");
             if (amountOwned > 0) {
-                template.querySelector(".stockOwnedTickerLarge").innerHTML = amountOwned;
+                template.querySelector(".stockOwnedTickerLarge").textContent = amountOwned;
             } else {
                 template.querySelector(".stockOwnedTickerLarge").remove();
             }
-            template.querySelector(".stockDescriptionTickerLarge").innerHTML = stockDescription;
+            template.querySelector(".stockDescriptionTickerLarge").textContent = stockDescription;
         }
     });
     return template;
@@ -98,7 +98,7 @@ function updateUserInfo() {
             alert("There was an issue getting the user information! Error: " + jsonResponse["data"]["error"] + " You will be redirected back to the login page.");
             window.location.href = "/";
         } else {
-            i("money").innerHTML = jsonResponse["data"]["money"];
+            i("money").textContent = jsonResponse["data"]["money"];
             var totalValue = jsonResponse["data"]["money"];
             for (var stockIndex in jsonResponse["data"]["ownedStocks"]) {
                 var stockName = jsonResponse["data"]["ownedStocks"][stockIndex]["name"];
@@ -113,7 +113,7 @@ function updateUserInfo() {
                 // TODO: finish this stock display
                 createLargeStockTicker(stockName, 0, i("createdStockList"));
             }
-            i("totalValue").innerHTML = totalValue;
+            i("totalValue").textContent = totalValue;
         }
     });
 }
