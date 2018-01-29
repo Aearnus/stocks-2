@@ -8,6 +8,9 @@
 		</title>
 		<link rel="stylesheet" type="text/css" href="/index.css">
 		<script type="text/javascript" src="/general-functions.js"></script>
+		<script type="text/javascript">
+			var stock = <%= stockObject %>;
+		</script>
 		<script type="text/javascript" src="/stock-functions.js"></script>
 	</head>
     <body onload="init()">
@@ -23,10 +26,10 @@
         </div>
         <div id="mainContent">
             <h1 id="stockName">
-                Stock Name
+				Loading...
             </h1>
-            <h2>
-                Stock Description
+            <h2 id="stockDesc">
+                Loading...
             </h2>
         </div>
     </body>
