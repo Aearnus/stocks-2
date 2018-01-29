@@ -34,7 +34,7 @@ def boolnum_return(res)
     "{\"result\": #{res}}"
 end
 def data_return(res, data)
-    "{\"result\": #{res}, \"data\": #{data}}"
+    "{\"result\": #{res}, \"data\": #{JSON.generate(data)}}"
 end
 
 ############################################################

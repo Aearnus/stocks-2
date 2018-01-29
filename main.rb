@@ -128,35 +128,35 @@ post "/createstock" do
     userId = params["userId"];
     #make sure user exists
     if !check_login_validity(userId)
-        return data_return(false, JSON.generate({error: "Invalid login token!", errorWith: "userId"}))
+        return data_return(false, {error: "Invalid login token!", errorWith: "userId"})
     end
     #make sure stock doesn't already exist
     if check_if_stock_exists(stockName)
-        return data_return(false, JSON.generate({error: "This stock already exists!", errorWith: "stockName"}))
+        return data_return(false, {error: "This stock already exists!", errorWith: "stockName"})
     end
     #make sure stock is only alphanumeric
     if stockName =~ /[^a-zA-Z0-9]/
-        return data_return(false, JSON.generate({error: "The stock name contains invalid characters!", errorWith: "stockDesc"}))
+        return data_return(false, {error: "The stock name contains invalid characters!", errorWith: "stockDesc"})
     end
     if stockDesc =~ /[^a-zA-Z0-9] /
-        return data_return(false, JSON.generate({error: "The stock description contains invalid characters!", errorWith: "stockDesc"}))
+        return data_return(false, {error: "The stock description contains invalid characters!", errorWith: "stockDesc"})
     end
     #make sure that name and description are okay length
     if (stockName.length > 10) || (stockName.length < 1)
-        return data_return(false, JSON.generate({error: "Stock names have to be from 1 to 10 letters long!", errorWith: "stockName"}))
+        return data_return(false, {error: "Stock names have to be from 1 to 10 letters long!", errorWith: "stockName"})
     end
     if (stockDesc.length > 100) || (stockDesc.length < 4)
-        return data_return(false, JSON.generate({error: "Stock descriptions have to be from 4 to 100 letters long!", errorWith: "stockDesc"}))
+        return data_return(false, {error: "Stock descriptions have to be from 4 to 100 letters long!", errorWith: "stockDesc"})
     end
     #make sure they bought at least 200 shares for $100 each - the minimum
     if (stockAmount < 200)
-        return data_return(false, JSON.generate({error: "You must buy at least 200 shares to create a stock!", errorWith: "stockAmount"}))
+        return data_return(false, {error: "You must buy at least 200 shares to create a stock!", errorWith: "stockAmount"})
     end
 
     user = $idCache[userId]
     #make sure the user has enough money
     if (stockAmount * shareCost > user["money"])
-        return data_return(false, JSON.generate({error: "You don't have enough money to buy #{stockAmount} shares! (required: $#{stockAmount * shareCost})", errorWith: "stockAmount"}))
+        return data_return(false, {error: "You don't have enough money to buy #{stockAmount} shares! (required: $#{stockAmount * shareCost})", errorWith: "stockAmount"})
     end
     #finally, it's gucci - create the stock
     #first, take the money from the user
@@ -219,20 +219,20 @@ post "/sellstock" do
     userId = params["userId"];
     #make sure user exists
     if !check_login_validity(userId)
-        return data_return(false, JSON.generate({error: "Invalid login token!", errorWith: "userId"}))
+        return data_return(false, {error: "Invalid login token!", errorWith: "userId"})
     end
     #make sure stock exists
     if !check_if_stock_exists(stockName)
-        return data_return(false, JSON.generate({error: "This stock doesn't exist!", errorWith: "stockName"}))
+        return data_return(false, {error: "This stock doesn't exist!", errorWith: "stockName"})
     end
     user = $idCache[userId]
     #make sure user has stock
     if user["ownedStocks"][stockName].nil?
-        return data_return(false, JSON.generate({error: "This stock isn't in your portfolio!", errorWith: "stockName"}))
+        return data_return(false, {error: "This stock isn't in your portfolio!", errorWith: "stockName"})
     end
     #make sure user has enough of stock
     if user["ownedStocks"][stockName]["shares"] - shareAmount < 0
-        return data_return(false, JSON.generate({error: "You don't have enough of #{stockName}!", errorWith: "stockAmount"}))
+        return data_return(false, {error: "You don't have enough of #{stockName}!", errorWith: "stockAmount"})
     end
 
     #if all this is good, actually sell the stock!
@@ -282,11 +282,11 @@ post "/buystock" do
     transactionId = params["transactionId"];
     #make sure user exists
     if !check_login_validity(userId)
-        return data_return(false, JSON.generate({error: "Invalid login token!", errorWith: "userId"}))
+        return data_return(false, {error: "Invalid login token!", errorWith: "userId"}))
     end
     #make sure stock exists
     if !check_if_stock_exists(stockName)
-        return data_return(false, JSON.generate({error: "This stock doesn't exist!", errorWith: "stockName"}))
+        return data_return(false, {error: "This stock doesn't exist!", errorWith: "stockName"})
     end
     stock = $stockCache[stockName]
     #make sure transaction exists, and if so, save it
@@ -301,11 +301,11 @@ post "/buystock" do
     end
     #if the transaction didn't exist
     if transaction == {}
-        return data_return(false, JSON.generate({error: "This transaction does not or no longer exists!", errorWith: "transactionId"}))
+        return data_return(false, {error: "This transaction does not or no longer exists!", errorWith: "transactionId"})
     end
     #if the transaction is of the wrong type
     if transaction["transaction"] != "sell"
-        return data_return(false, JSON.generate({error: "This transaction has an invalid type!", errorWith: "transaction"}))
+        return data_return(false, {error: "This transaction has an invalid type!", errorWith: "transaction"})
     end
 
     buyerUser = $idCache[userId]
@@ -313,7 +313,7 @@ post "/buystock" do
     #make sure the user has enough money
     transactionCost = transaction["amount"] * transaction["value"]
     if (transactionCost > user["money"])
-        data_return(false, JSON.generate({error: "You don't have enough money to buy #{stockAmount} shares! (required: $#{stockAmount * shareCost})", errorWith: "stockAmount"}))
+        data_return(false, {error: "You don't have enough money to buy #{stockAmount} shares! (required: $#{stockAmount * shareCost})", errorWith: "stockAmount"})
     end
 
     #everything is good, let's commit the transaction
@@ -378,7 +378,7 @@ end
 get "/stockinfo/*" do |stockName|
     stockName.upcase!
     if !check_if_stock_exists(stockName)
-        return data_return(false, JSON.generate({error: "Invalid stock name!", errorWith: "stockName"}))
+        return data_return(false, {error: "Invalid stock name!", errorWith: "stockName"})
     else
         return data_return(true, sanitize_stock($stockCache[stockName]))
     end
@@ -408,9 +408,9 @@ end
 ############################################################
 get "/idinfo/*" do |id|
     if !check_login_validity(id)
-        return data_return(false, JSON.generate({error: "Invalid user ID!", errorWith: "userId"}))
+        return data_return(false, {error: "Invalid user ID!", errorWith: "userId"})
     else
-        return data_return(true, JSON.generate($idCache[id]))
+        return data_return(true, $idCache[id])
     end
 end
 
@@ -456,6 +456,6 @@ get "/liststocks" do
     elsif criteria == "new"
         return data_return(true, $stockCache.values.sort_by { |stock| stock["time"] }[-n .. -1].reverse.map{|stock| sanitize_stock(stock)})
     else
-        return data_return(false, JSON.generate({error: "Unknown criteria: #{criteria}", errorWith: "criteria"}))
+        return data_return(false, {error: "Unknown criteria: #{criteria}", errorWith: "criteria"})
     end
 end
