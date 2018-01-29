@@ -28,22 +28,6 @@
 	text-align: right;
 	float: right;
 }
-.positiveChange {
-	color: var(--positive);
-}
-.positiveChange::before {
-	color: var(--positive);
-	content: "↑";
-	font-weight: bold;
-}
-.negativeChange {
-	color: var(--negative);
-}
-.negativeChange::before {
-	color: var(--negative);
-	content: "↓";
-	font-weight: bold;
-}
 
 .stockTickerLarge {
 	display: inline-block;

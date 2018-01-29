@@ -70,4 +70,5 @@ function funnyName() {
 function stockHistoryToChange(stockHistory) {
     // TODO TODO TODO
     // TAKE A STOCK "history" array and translate it into a recent price change
+    return 10;
 }
