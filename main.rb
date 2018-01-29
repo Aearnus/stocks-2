@@ -282,7 +282,7 @@ post "/buystock" do
     transactionId = params["transactionId"];
     #make sure user exists
     if !check_login_validity(userId)
-        return data_return(false, {error: "Invalid login token!", errorWith: "userId"}))
+        return data_return(false, {error: "Invalid login token!", errorWith: "userId"})
     end
     #make sure stock exists
     if !check_if_stock_exists(stockName)
