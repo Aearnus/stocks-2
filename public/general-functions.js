@@ -64,7 +64,7 @@ function funnyName() {
     ]
     var finalName = nameArray[Math.floor(Math.random() * nameArray.length)];
     document.title = "Stocks 2: " + finalName;
-    i("gameSubtitle").innerHTML = finalName;
+    i("gameSubtitle").textContent = finalName;
 }
 
 function stockHistoryToChange(stockHistory) {
