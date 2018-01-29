@@ -26,7 +26,7 @@ function createLargeStockTicker(stockName, amountOwned) {
     // TODO: get stock info in this function
     var stockChange = 100;
     var stockValue = 100;
-    var stockDescription = "M"
+    var stockDescription = "DESCRIPTION DESCRIPTION DESCRIPTION DESCRIPTION DESCRIPTION DESCRIPTION DESCRIPTION";
     var template = i("stockTickerLargeTemplate").cloneNode(true).content;
     template.querySelector("a").href = "stocks/" + stockName;
     template.querySelector(".stockTitleLarge").innerHTML = stockName;
