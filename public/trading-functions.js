@@ -12,12 +12,33 @@ function init() {
 }
 
 function createSmallStockTicker(stockName, stockValue, stockChange) {
+    console.log("Creating small stock ticker for stock " + stockName);
     var template = i("stockTickerSmallTemplate").cloneNode(true).content;
     template.querySelector("a").href = "stocks/" + stockName;
-    template.querySelector(".stockTitle").innerHTML = stockName;
-    template.querySelector(".stockValueTicker").innerHTML = stockValue;
-    template.querySelector(".stockChangeTicker").innerHTML = stockChange;
-    template.querySelector(".stockChangeTicker").classList.add(stockChange > 0 ? "positiveChange" : "negativeChange");
+    template.querySelector(".stockTitleSmall").innerHTML = stockName;
+    template.querySelector(".stockValueTickerSmall").innerHTML = stockValue;
+    template.querySelector(".stockChangeTickerSmall").innerHTML = stockChange;
+    template.querySelector(".stockChangeTickerSmall").classList.add(stockChange > 0 ? "positiveChange" : "negativeChange");
+    return template;
+}
+function createLargeStockTicker(stockName, amountOwned) {
+    console.log("Creating large stock ticker for stock " + stockName);
+    // TODO: get stock info in this function
+    var stockChange = 100;
+    var stockValue = 100;
+    var stockDescription = "M"
+    var template = i("stockTickerLargeTemplate").cloneNode(true).content;
+    template.querySelector("a").href = "stocks/" + stockName;
+    template.querySelector(".stockTitleLarge").innerHTML = stockName;
+    template.querySelector(".stockValueTickerLarge").innerHTML = stockValue;
+    template.querySelector(".stockChangeTickerLarge").innerHTML = stockChange;
+    template.querySelector(".stockChangeTickerLarge").classList.add(stockChange > 0 ? "positiveChange" : "negativeChange");
+    if (amountOwned > 0) {
+        template.querySelector(".stockOwnedTickerLarge").innerHTML = amountOwned;
+    } else {
+        template.querySelector(".stockOwnedTickerLarge").remove();
+    }
+    template.querySelector(".stockDescriptionTickerLarge").innerHTML = stockDescription;
     return template;
 }
 function createExampleStocks() {
@@ -34,9 +55,18 @@ function updateUserInfo() {
         } else {
             i("money").innerHTML = jsonResponse["data"]["money"];
             var totalValue = jsonResponse["data"]["money"];
-            for (var stockName in jsonResponse["data"]["ownedStocks"]) {
+            for (var stockIndex in jsonResponse["data"]["ownedStocks"]) {
+                var stockName = jsonResponse["data"]["ownedStocks"][stockIndex]["name"];
+                var amountOwned = jsonResponse["data"]["ownedStocks"][stockIndex]["shares"];
                 // TODO: multiply this by the stock value
-                totalValue += jsonResponse["data"]["ownedStocks"][stockName]["shares"]
+                totalValue += amountOwned; // * stockValue;
+                // TODO: finish this stock display
+                i("ownedStockList").appendChild(createLargeStockTicker(stockName, amountOwned));
+            }
+            for (var stockIndex in jsonResponse["data"]["createdStocks"]) {
+                var stockName = jsonResponse["data"]["createdStocks"][stockIndex];
+                // TODO: finish this stock display
+                i("createdStockList").appendChild(createLargeStockTicker(stockName, 0));
             }
             i("totalValue").innerHTML = totalValue;
         }

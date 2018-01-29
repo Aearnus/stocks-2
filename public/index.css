@@ -46,6 +46,9 @@ body {
 	margin: 0 0 0 0;
 	display: inline-block;
 }
+.fullpage {
+	width: 100%;
+}
 
 .rightalign {
 	text-align: right;
@@ -140,22 +143,19 @@ section {
 	margin: 2px;
 	text-align: center;
 }
-.stockTitle::before {
-	/* content: "$"; */
-}
-.stockTitle {
+.stockTitleSmall {
 	font-weight: bold;
 	border-bottom: 3px solid var(--accent);
 	margin-bottom: 3px;
 	color: var(--bg);
 }
-.stockValueTicker {
+.stockValueTickerSmall {
 	float: left;
 	width: 100%;
 	text-align: left;
 	color: var(--bg-alt);
 }
-.stockValueTicker::before {
+.stockValueTickerSmall::before {
 	content: "$"
 }
 
@@ -166,7 +166,7 @@ section {
 	content: "Total value: $"
 }
 
-.stockChangeTicker {
+.stockChangeTickerSmall {
 	width: 100%;
 	text-align: right;
 	float: right;
@@ -186,4 +186,49 @@ section {
 	color: var(--negative);
 	content: "↓";
 	font-weight: bold;
+}
+
+.stockTickerLarge {
+	display: inline-block;
+	background-color: var(--text-alt);
+	width: 100%;
+	height: 8rem;
+	padding: 0.5rem;
+	text-align: left;
+}
+.stockTitleLarge {
+	display: block;
+	width: auto;
+	font-size: 1.5rem;
+	border-bottom: 3px solid var(--accent);
+	border-right: 3px solid var(--accent);
+	padding-right: 3px;
+	margin-bottom: 3px;
+	margin-right: 1rem;
+	color: var(--bg);
+	float: left;
+}
+.stockValueTickerLarge::before {
+	content: "$"
+}
+.stockValueTickerLarge {
+	color: var(--bg-alt);
+	line-height: 1rem;
+}
+.stockChangeTickerLarge {
+	line-height: 1rem;
+}
+.stockOwnedTickerLarge::before {
+	content: "#:"
+}
+.stockOwnedTickerLarge {
+	color: var(--bg-alt);
+	text-align: right;
+	float: right;
+	line-height: 1rem;
+}
+.stockDescriptionTickerLarge {
+	color: var(--bg-alt);
+	overflow-x: none;
+	width: auto;
 }
