@@ -6,9 +6,10 @@ function init() {
             window.location.href = "/";
         }
     });
+    // TODO: create an actual stock creation user interface
     i("createStockUserId").value = localStorage.getItem("stocks2id");
     updateUserInfo();
-    createExampleStocks();createExampleStocks();createExampleStocks();createExampleStocks();createExampleStocks();createExampleStocks();
+    populateStockList();
 }
 
 function createSmallStockTicker(stockName, stockValue, stockChange) {
@@ -41,14 +42,42 @@ function createLargeStockTicker(stockName, amountOwned) {
     template.querySelector(".stockDescriptionTickerLarge").innerHTML = stockDescription;
     return template;
 }
-function createExampleStocks() {
-    i("topStockList").appendChild(createSmallStockTicker("TEST", 1.00, 1.00));
-    i("newStockList").appendChild(createSmallStockTicker("TEST", 1.00, 1.00));
+function populateStockList() {
+    // first, populate the top stocks list
+    getRequest("/liststocks?criteria=top&n=10", function (req) {
+        var jsonResponse = JSON.parse(req.responseText);
+        console.log(jsonResponse);
+        if (jsonResponse["result"] == false) {
+            alert("There was an issue getting the stock listings! Error: " + jsonResponse["data"]["error"] + " You will be redirected back to the login page.");
+            window.location.href = "/";
+        } else {
+            for (var stockIndex in jsonResponse["data"]) {
+                var stock = jsonResponse["data"][stockIndex];
+                // TODO: CALCULATE STOCK CHANGE
+                i("topStockList").appendChild(createSmallStockTicker(stock["name"], stock["averageValue"], 1));
+            }
+        }
+    });
+    // then, populate the new stocks list
+    getRequest("/liststocks?criteria=new&n=10", function (req) {
+        var jsonResponse = JSON.parse(req.responseText);
+        console.log(jsonResponse);
+        if (jsonResponse["result"] == false) {
+            alert("There was an issue getting the stock listings! Error: " + jsonResponse["data"]["error"] + " You will be redirected back to the login page.");
+            window.location.href = "/";
+        } else {
+            for (var stockIndex in jsonResponse["data"]) {
+                var stock = jsonResponse["data"][stockIndex];
+                // TODO: CALCULATE STOCK CHANGE
+                i("newStockList").appendChild(createSmallStockTicker(stock["name"], stock["averageValue"], 1));
+            }
+        }
+    });
 }
 function updateUserInfo() {
     getRequest("/idinfo/" + localStorage.getItem("stocks2id"), function (req) {
-        console.log(req.responseText);
         var jsonResponse = JSON.parse(req.responseText);
+        console.log(jsonResponse);
         if (jsonResponse["result"] == false) {
             alert("There was an issue getting the user information! Error: " + jsonResponse["data"]["error"] + " You will be redirected back to the login page.");
             window.location.href = "/";
