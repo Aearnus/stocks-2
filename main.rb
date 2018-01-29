@@ -343,13 +343,13 @@ end
 #   On existing stock:
 #       Redirect to stock.erb
 #   On nonexistant stock:
-#       Redirect to stock-fail.html
+#       Redirect to stock-fail.erb
 ############################################################
 get "/stock/*" do |stockName|
     if check_if_stock_exists(stockName)
         erb :stock
     else
-        redirect "/stock-fail.html"
+        erb :'stock-fail'
     end
 end
 
