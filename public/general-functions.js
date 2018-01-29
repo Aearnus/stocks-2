@@ -67,8 +67,26 @@ function funnyName() {
     i("gameSubtitle").textContent = finalName;
 }
 
-function stockHistoryToChange(stockHistory) {
-    // TODO TODO TODO
-    // TAKE A STOCK "history" array and translate it into a recent price change
-    return 10;
+function stockHistoryToChange(stock) {
+    // look back onto 10 buy transactions, then compare it with
+    // averageValue.
+    // note: make sure this value is less than helper-functions.rb/get_stock_value default
+    // why? because that's the value that we compare it with.
+    var defaultLookback = 10;
+
+    var stockHistory = stock["history"];
+    var buyAmount = 0;
+    var totalValue = 0;
+    for (var transactionI in stockHistory) {
+        if (buyAmount >= defaultLookback) {
+            break;
+        }
+        // start looking from end of history
+        var transaction = stockHistory[stockHistory.length - transactionI - 1];
+        if (transaction["transaction"] == "buy") {
+            buyAmount++;
+            totalValue += transaction["value"];
+        }
+    }
+    return (totalValue / buyAmount) - stock["averageValue"];
 }

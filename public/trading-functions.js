@@ -24,7 +24,6 @@ function createSmallStockTicker(stockName, stockValue, stockChange) {
 }
 function createLargeStockTicker(stockName, amountOwned, parentNode) {
     console.log("Creating large stock ticker for stock " + stockName);
-    // TODO: stockChange
     // default values for the ticker, then the ticker itself
     var stockChange = 100;
     var stockValue = 100;
@@ -41,6 +40,7 @@ function createLargeStockTicker(stockName, amountOwned, parentNode) {
             var stock = jsonResponse["data"];
             stockValue = stock["averageValue"];
             stockDescription = stock["desc"];
+            stockChange = stockHistoryToChange(stock);
             template.href = "/stock/" + stockName;
             template.querySelector(".stockTitleLarge").textContent = stockName;
             template.querySelector(".stockValueTickerLarge").textContent = stockValue;
@@ -66,8 +66,7 @@ function populateStockList() {
         } else {
             for (var stockIndex in jsonResponse["data"]) {
                 var stock = jsonResponse["data"][stockIndex];
-                // TODO: CALCULATE STOCK CHANGE
-                i("topStockList").appendChild(createSmallStockTicker(stock["name"], stock["averageValue"], 1));
+                i("topStockList").appendChild(createSmallStockTicker(stock["name"], stock["averageValue"], stockHistoryToChange(stock)));
             }
         }
     });
@@ -80,8 +79,7 @@ function populateStockList() {
         } else {
             for (var stockIndex in jsonResponse["data"]) {
                 var stock = jsonResponse["data"][stockIndex];
-                // TODO: CALCULATE STOCK CHANGE
-                i("newStockList").appendChild(createSmallStockTicker(stock["name"], stock["averageValue"], 1));
+                i("newStockList").appendChild(createSmallStockTicker(stock["name"], stock["averageValue"], stockHistoryToChange(stock)));
             }
         }
     });
@@ -101,12 +99,10 @@ function updateUserInfo() {
                 var amountOwned = jsonResponse["data"]["ownedStocks"][stockIndex]["shares"];
                 // TODO: multiply this by the stock value
                 totalValue += amountOwned; // * stockValue;
-                // TODO: finish this stock display
                 createLargeStockTicker(stockName, amountOwned, i("ownedStockList"));
             }
             for (var stockIndex in jsonResponse["data"]["createdStocks"]) {
                 var stockName = jsonResponse["data"]["createdStocks"][stockIndex];
-                // TODO: finish this stock display
                 createLargeStockTicker(stockName, 0, i("createdStockList"));
             }
             i("totalValue").textContent = totalValue;

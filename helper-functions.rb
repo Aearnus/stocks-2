@@ -144,7 +144,7 @@ end
 # Return value:
 #   Number -- the average value of the stock
 ############################################################
-def get_stock_value(stockObject, transactions)
+def get_stock_value(stockObject, transactions=25)
     if transactions > stockObject["history"].length
         transactions = stockObject["history"].length
     end
