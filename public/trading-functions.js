@@ -33,9 +33,7 @@ function createLargeStockTicker(stockName, amountOwned, parentNode) {
     parentNode.appendChild(templateFragment);
     var template = parentNode.lastChild;
     getRequest("/stockinfo/" + stockName, function (req) {
-        console.log("template is " + template);
         var jsonResponse = JSON.parse(req.responseText);
-        console.log(jsonResponse);
         if (jsonResponse["result"] == false) {
             alert("There was an issue getting the stock info for a large ticker! Error: " + jsonResponse["data"]["error"] + " You will be redirected back to the login page.");
             window.location.href = "/";
@@ -43,7 +41,7 @@ function createLargeStockTicker(stockName, amountOwned, parentNode) {
             var stock = jsonResponse["data"];
             stockValue = stock["averageValue"];
             stockDescription = stock["desc"];
-            template.querySelector("a").href = "stock/" + stockName;
+            template.href = "/stock/" + stockName;
             template.querySelector(".stockTitleLarge").textContent = stockName;
             template.querySelector(".stockValueTickerLarge").textContent = stockValue;
             template.querySelector(".stockChangeTickerLarge").textContent = stockChange;
@@ -62,7 +60,6 @@ function populateStockList() {
     // first, populate the top stocks list
     getRequest("/liststocks?criteria=top&n=10", function (req) {
         var jsonResponse = JSON.parse(req.responseText);
-        console.log(jsonResponse);
         if (jsonResponse["result"] == false) {
             alert("There was an issue getting the stock listings! Error: " + jsonResponse["data"]["error"] + " You will be redirected back to the login page.");
             window.location.href = "/";
@@ -77,7 +74,6 @@ function populateStockList() {
     // then, populate the new stocks list
     getRequest("/liststocks?criteria=new&n=10", function (req) {
         var jsonResponse = JSON.parse(req.responseText);
-        console.log(jsonResponse);
         if (jsonResponse["result"] == false) {
             alert("There was an issue getting the stock listings! Error: " + jsonResponse["data"]["error"] + " You will be redirected back to the login page.");
             window.location.href = "/";
