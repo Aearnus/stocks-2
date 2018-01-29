@@ -347,7 +347,7 @@ end
 ############################################################
 get "/stock/*" do |stockName|
     if check_if_stock_exists(stockName)
-        erb :stock, :locals => {:stockName => stockName}
+        erb :stock, :locals => {:stockObject => JSON.generate(sanitize_stock($stockCache[stockName]))}
     else
         erb :'stock-fail', :locals => {:stockName => stockName}
     end
