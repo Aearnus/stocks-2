@@ -1,0 +1,9 @@
+Things that still have to be done:
+
+* Add the history graph to stocks on main page
+* Add the history graph to stocks on stock page
+* Add an interface to properly sell shares
+* Add an interface to properly buy shares
+* Touch up the interface to create a company
+* Add to the stock JSON object to allow partial sales
+* Add a username/password alongside the ID token system (use the usernames/passwords as a private key to encrypt the ID?)
