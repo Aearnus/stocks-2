@@ -135,7 +135,7 @@ button {
 	width: 100%;
 	overflow-x: auto;
 	background: var(--bg-alt);
-	padding: 1rem
+	padding: 1rem;
 }
 
 .leftFloat {
@@ -152,15 +152,15 @@ section {
 }
 
 #money::before {
-	content: "Liquid funds: $"
+	content: "Liquid funds: $";
 }
 #totalValue::before {
-	content: "Total value: $"
+	content: "Total value: $";
 }
 
 footer {
 	padding-top: 2rem;
 	width: 100%;
 	text-align: center;
-	color: grey
+	color: grey;
 }

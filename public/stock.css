@@ -1,3 +1,12 @@
 #stockValue::before {
     content: "$"
 }
+
+.stockGraph {
+    width: 100%;
+    height: 8rem;
+    text-align: center;
+    background-color: #111;
+    color: var(--bg-alt);
+    padding-top: 3rem;
+}
