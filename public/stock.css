@@ -8,5 +8,46 @@
     text-align: center;
     background-color: #111;
     color: var(--bg-alt);
-    padding-top: 3rem;
+    padding: 0.5rem;
+    display: relative;
+}
+
+.transactionContainer {
+    width: 16em;
+    background-color: var(--text-alt);
+    color: var(--bg);
+    padding: 0.5rem;
+    display: relative;
+}
+
+.transactionType {
+    width: 100%;
+    text-align: center;
+    border-bottom: 3px solid var(--accent);
+    font-weight: bold;
+}
+
+.transactionSubtitle {
+    font-weight: bold;
+}
+
+.transactionTime {
+    padding-left: 1rem;
+}
+
+.transactionPrice {
+    padding-left: 1rem;
+}
+.transactionPrice::before {
+    content: "$"
+}
+
+.transactionInfo {
+    padding-left: 1rem;
+}
+
+.transactionBuy {
+    text-align: center;
+    background-color: var(--text);
+    width: 100%;
 }
