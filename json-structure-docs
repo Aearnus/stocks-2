@@ -30,9 +30,10 @@ stock:
     "createdBy": "<id of user>",
     "history": [
         {
-            "transaction": "buy" or "sell",
-            --IMPORTANT NOTE: BUY denotes the fact that the stock has been transacted and moved hands
-            --SELL denotes that someone has created a sell offer, not that it was sold.
+            "transaction": "buy", "sell", or "done"
+            --IMPORTANT NOTE: BUY denotes the fact that someone has created a buy order.
+            --SELL denotes that someone has created a sell order.
+            --DONE denotes that the stock has changed hands
             "time": <unix timestamp>,
             "amount": <shares transferred>,
             "value": <monetary value of 1 share>,

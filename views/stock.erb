@@ -15,7 +15,7 @@
 		<script type="text/javascript" src="/stock-functions.js"></script>
 	</head>
     <body onload="init()">
-		<div id="transactionTemplate"><div class="transactionContainer">
+		<template id="transactionTemplate"><div class="transactionContainer">
 			<div class="transactionType">
 				Sell Order
 			</div>
@@ -33,10 +33,10 @@
 				Total price:
 			</div>
 			<div class="transactionPrice">0</div>
-			<button class="transactionBuy" onclick="buyStock(<stock-id>)">
+			<button class="transactionBuy">
 				Buy shares
 			</button>
-		</div></div>
+		</div></template>
         <div id="titleContainer">
             <h1 class="title" id="gameTitle">
                 Stocks 2
@@ -78,6 +78,7 @@
 						Sell Orders
 					</h2>
 				</div>
+				<div id="sellOrders"></div>
 			</section>
 			<section>
 				<div class="tab">
@@ -85,6 +86,53 @@
 						Sell Shares
 					</h2>
 				</div>
+				<form action="/sellstock" method="post">
+					<p>
+						<label for="sellStockPrice">Value per share:</label>
+						<input type="text" id="sellStockPrice" name="sharePrice">
+					</p>
+					<p>
+						<label for="sellStockAmount">Amount to sell:</label>
+						<input type="text" id="sellStockAmount" name="shareAmount">
+					</p>
+					<input type="text" id="sellStockUserId" name="userId" hidden="true">
+					<input type="text" id="sellStockName" name="stockName" hidden="true">
+
+					<button type="submit">
+						Create Sell Order
+					</button>
+				</form>
+			</section>
+			<section>
+				<div class="tab">
+					<h2 class="tabText">
+						Buy Orders
+					</h2>
+				</div>
+				<div id="sellOrders"></div>
+			</section>
+			<section>
+				<div class="tab">
+					<h2 class="tabText">
+						Buy Shares
+					</h2>
+				</div>
+				<form action="/sellstock" method="post">
+					<p>
+						<label for="buyStockPrice">Value per share:</label>
+						<input type="text" id="buyStockPrice" name="sharePrice">
+					</p>
+					<p>
+						<label for="buyStockAmount">Amount to buy:</label>
+						<input type="text" id="buyStockAmount" name="shareAmount">
+					</p>
+					<input type="text" id="buyStockUserId" name="userId" hidden="true">
+					<input type="text" id="buyStockName" name="stockName" hidden="true">
+
+					<button type="submit">
+						Create Buy Order
+					</button>
+				</form>
 			</section>
         </div>
 		<footer>
