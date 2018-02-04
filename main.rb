@@ -259,6 +259,66 @@ post "/sellstock" do
 end
 
 ############################################################
+# POST /buystock
+# Hook to post a buy order
+# POST params:
+#   stockName: the stock to buy
+#   shareAmount: the amount of shares to sell
+#   sharePrice: what price to sell each share at
+#   userId: the id of the user that wishes to buy a stock
+#   On success:
+#       {"result": true}
+#   On failure:
+#       {
+#           "result": false,
+#           "data": {
+#               "error": "<error message>",
+#               "errorWith": "<param>"
+#           }
+#       }
+############################################################
+post "/buystock" do
+    return if !assert_params(params, "stockName", "shareAmount", "sharePrice", "userId", "transactionId")
+    stockName = params["stockName"].upcase;
+    shareAmount = params["shareAmount"].to_i;
+    sharePrice = params["sharePrice"].to_i;
+    userId = params["userId"];
+    #make sure user exists
+    if !check_login_validity(userId)
+        return data_return(false, {error: "Invalid login token!", errorWith: "userId"})
+    end
+    #make sure stock exists
+    if !check_if_stock_exists(stockName)
+        return data_return(false, {error: "This stock doesn't exist!", errorWith: "stockName"})
+    end
+    user = $idCache[userId]
+    #make sure user has enough money
+    transactionPrice = shareAmount * sharePrice
+    if user["money"] - transactionPrice < 0
+        return data_return(false, {error: "You don't have enough money! You need $#{transactionPrice}.", errorWith: "stockAmount"})
+    end
+
+    #if all this is good, actually post the buy order!
+    stock = $stockCache[stockName]
+    #take the money away from the user
+    user["money"] -= transactionPrice
+    #add the transaction to the stock
+    stock["history"] << {
+        "transaction" => "buy",
+        "time" => Time.now.to_i,
+        "amount" => shareAmount,
+        "value" => sharePrice,
+        "uuid" => SecureRandom.uuid,
+        "userId" => userId
+    }
+    #finally, apply the changes to cache and disk
+    update_stock_cache(stock)
+    update_id_cache(user)
+    write_stock(stock)
+    write_id(user)
+end
+
+############################################################
 # POST /fillorder
 # Hook to fill a buy/sell order
 # POST params:
