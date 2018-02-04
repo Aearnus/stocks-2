@@ -4,14 +4,25 @@ user:
     "id": "<user id>",
     "money": 100,
     "createdStocks": [<list of stock names>],
-    "ownedStocks": [
-        {
+    "ownedStocks": {
+        "<stock name>": {
             "name": "<stock name>",
             "shares": amount of shares
         },
-        {
+        "<stock name>": {
             "name": "<stock name>",
             "shares": amount of shares
+        },
+        ...
+    }
+    "openOrders": [
+        {
+            "name": "<stock name>",
+            "uuid": "<transaction uuid>"
+        },
+        {
+            "name": "<stock name>",
+            "uuid": "<transaction uuid>"
         },
         ...
     ]

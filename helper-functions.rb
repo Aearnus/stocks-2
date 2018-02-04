@@ -137,6 +137,26 @@ def check_if_stock_exists(stock)
 end
 
 ############################################################
+# get_transaction(stockName, uuid)
+# Arguments:
+#   stockName: the name of the stock to get the transaction of
+#   uuid: the uuid of the desired transaction
+# Return value:
+#   On success:
+#       {Transaction object}
+#   On failure:
+#       nil
+############################################################
+def get_transaction(stockName, uuid)
+    $stockCache[stockName]["history"].each do |currentTransaction|
+        if currentTransaction["uuid"] == uuid
+            return currentTransaction
+        end
+    end
+    return nil
+end
+
+############################################################
 # get_stock_value(stockObject, transactions)
 # Arguments:
 #   stockObject (object, parsed from stock json): stock to find the average value of
@@ -199,6 +219,10 @@ def modify_user_stocks(user, stockName, stockChange)
         #make sure we're not taking more than the user has
         if stockChange + user["ownedStocks"][stockName]["shares"] < 0
             return originalUser
+        #if the user runs out of stocks, delete that stock from their inventory
+        elsif stockChange + user["ownedStocks"][stockName]["shares"] == 0
+            user["ownedStocks"].delete(stockName)
+            return user
         end
         #if it's good, go ahead and do it
         user["ownedStocks"][stockName]["shares"] += stockChange

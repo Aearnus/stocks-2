@@ -51,7 +51,8 @@ get "/newId" do
         "id" => "#{userId}",
         "money" => 100,
         "createdStocks" => [],
-        "ownedStocks" => []
+        "ownedStocks" => {},
+        "openOrders" => []
     }
     # Write the ID to disk and to cache
     write_id(defaultIdStats, true)
@@ -196,7 +197,7 @@ end
 
 ############################################################
 # POST /sellstock
-# Hook to sell a stock
+# Hook to post a sell order
 # POST params:
 #   stockName: the stock to buy
 #   shareAmount: the amount of shares to sell
@@ -258,11 +259,10 @@ post "/sellstock" do
 end
 
 ############################################################
-# POST /buystock
-# Hook to buy a stock
+# POST /fillorder
+# Hook to fill a buy/sell order
 # POST params:
 #   stockName: the stock to buy
-#   stockAmount: the amount of stocks to buy
 #   userId: the id of the user that wishes to buy a stock
 #   transactionId: the uuid of the transaction
 #   On success:
@@ -276,7 +276,7 @@ end
 #           }
 #       }
 ############################################################
-post "/buystock" do
+post "/fillorder" do
     return if !assert_params(params, "stockName", "stockAmount", "userId", "transactionId")
     stockName = params["stockName"].upcase;
     shareAmount = params["stockAmount"].to_i;
@@ -292,42 +292,66 @@ post "/buystock" do
     end
     stock = $stockCache[stockName]
     #make sure transaction exists, and if so, save it
-    transaction = {}
-    transactionIndex = 0
-    stock["history"].each_with_index do |currentTransaction, i|
-        if currentTransaction["uuid"] == transactionId
-            transaction = currentTransaction
-            transactionIndex = i
-            break
-        end
-    end
+    transaction = get_transaction(stockName, transactionId)
     #if the transaction didn't exist
-    if transaction == {}
+    if transaction.nil?
         return data_return(false, {error: "This transaction does not or no longer exists!", errorWith: "transactionId"})
     end
-    #if the transaction is of the wrong type
-    if transaction["transaction"] != "sell"
-        return data_return(false, {error: "This transaction has an invalid type!", errorWith: "transaction"})
+    # distinguish between the two types of transactions
+    buyerUser = []
+    sellerUser = []
+
+    #if a sell transaction was already posted (shares were moved from the seller)
+    #what needs to be done:
+    # money moved from the buyer (w/ check)
+    # shares moved to the buyer
+    # money moved to the seller
+    if transaction["transaction"] == "sell"
+        buyerUser = $idCache[userId]
+        sellerUser = $idCache[transaction["userId"]]
+        #make sure the buyer has enough money
+        transactionCost = transaction["amount"] * transaction["value"]
+        if (transactionCost > buyerUser["money"])
+            data_return(false, {error: "You don't have enough money to buy #{stockAmount} shares! (required: $#{stockAmount * shareCost})", errorWith: "stockAmount"})
+        end
+
+        #everything is good, let's commit the transaction
+        #first, change the "sell" to "done"
+        transaction["transaction"] = "done"
+        #then move the money out of the buyer's and into the seller's account
+        sellerUser["money"] += transactionCost
+        buyerUser["money"] -= transactionCost
+        #move the stocks into the buyer's account
+        #/sellstock alredy moved them out of the seller's account
+        buyerUser = modify_user_stocks(buyerUser, stockName, transaction["amount"])
+
+    #if a buy transaction was already posted (money was moved from the buyer)
+    #what needs to be done:
+    # shares moved from the seller (w/ check)
+    # money moved to the seller
+    # shares moved to the buyer
+    elsif transaction["transaction"] == "buy"
+        buyerUser = $idCache[transaction["userId"]]
+        sellerUser = $idCache[userId]
+        #make sure the seller has enough shares to fill the buy order
+        if (transaction["amount"] > user["ownedStocks"][stockName]["shares"])
+            data_return(false, {error: "You don't have enough shares to sell #{stockAmount} shares!", errorWith: "stockAmount"})
+        end
+
+        #everything is good, let's commit the transaction
+        #first, change the "buy" to "done"
+        transaction["transaction"] = "done"
+        #then move the money into the seller's account
+        #/buystock already moved money out of the buyer's account
+        sellerUser["money"] += transaction["amount"] * transaction["value"]
+        #move the shares into the buyer's account and out of the seller's account
+        buyerUser = modify_user_stocks(buyerUser, stockName, transaction["amount"])
+        sellerUser = modify_user_stocks(sellerUser, stockName, -transaction["amount"])
     end
 
-    buyerUser = $idCache[userId]
-    sellerUser = $idCache[stock["createdBy"]]
-    #make sure the user has enough money
-    transactionCost = transaction["amount"] * transaction["value"]
-    if (transactionCost > user["money"])
-        data_return(false, {error: "You don't have enough money to buy #{stockAmount} shares! (required: $#{stockAmount * shareCost})", errorWith: "stockAmount"})
-    end
 
-    #everything is good, let's commit the transaction
-    #first, change the "sell" to "buy"
-    stock["history"][transactionIndex]["transaction"] = "buy"
-    #then move the money out of the buyer's and into the seller's account
-    sellerUser["money"] += transactionCost
-    buyerUser["money"] -= transactionCost
-    #move the stocks into the buyer's account and out of the seller's account
-    buyerUser = modify_user_stocks(buyerUser, stockName, transaction["amount"])
-    sellerUser = modify_user_stocks(sellerUser, stockName, transaction["amount"])
     #finally, update the caches and write to disk
+    #this happens regardless of who buys and who sells
     update_stock_cache(stock)
     update_id_cache(buyerUser)
     update_id_cache(sellerUser)
