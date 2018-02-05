@@ -32,10 +32,11 @@ function sellStock(amount, value) {
 
 function createSellView(time, shares, shareValue, uuid) {
     console.log("Creating transaction view for transaction " + uuid);
+    console.log("Variables: " + time + " " + shares + " " + shareValue + " " + uuid);
     var template = i("transactionTemplate").cloneNode(true).content;
     template.querySelector(".transactionTime").textContent = (Math.floor(Date.now()/1000) - time) + " seconds ago";
     template.querySelector(".transactionInfo").children[0].textContent = shares;
-    template.querySelector(".transactionInfo").children[1].textContent = shareValue;
+    template.querySelector(".transactionInfo").children[2].textContent = shareValue;
     template.querySelector(".transactionPrice").textContent = shares * shareValue;
     template.querySelector(".transactionBuy").onclick = function (e) { sellStock(uuid, e); }
     return template;
