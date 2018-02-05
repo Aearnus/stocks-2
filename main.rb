@@ -416,6 +416,8 @@ post "/fillorder" do
         sellerUser = modify_user_stocks(sellerUser, stockName, -transaction["amount"])
     end
 
+    #update stock average value
+    stock["averageValue"] = get_stock_value(stock)
 
     #finally, update the caches and write to disk
     #this happens regardless of who buys and who sells
