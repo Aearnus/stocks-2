@@ -186,11 +186,12 @@ end
 #   A stock object, minus transaction userId, or stock createdBy
 ############################################################
 def sanitize_stock(stock)
-    stock["createdBy"] = ""
-    stock["history"].each_with_index do |_, index|
-        stock["history"][index]["userId"] = ""
+    out = stock.deep_copy
+    out["createdBy"] = ""
+    out["history"].each_with_index do |_, index|
+        out["history"][index]["userId"] = ""
     end
-    return stock
+    return out
 end
 
 ############################################################
@@ -204,11 +205,14 @@ end
 #   unchanged user object on failure
 ############################################################
 def modify_user_stocks(user, stockName, stockChange)
+    puts "MODIFY_USER_STOCKS"
+    pp user
     originalUser = user
     #if they don't already own any of this stock
     if user["ownedStocks"][stockName].nil?
         user["ownedStocks"][stockName] = {}
         user["ownedStocks"][stockName]["name"] = stockName
+        user["ownedStocks"][stockName]["shares"] = 0
         #make sure it doesn't try to take from a user with nothing
         if stockChange < 0
             return originalUser

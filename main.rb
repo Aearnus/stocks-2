@@ -348,8 +348,11 @@ end
 # for an idea to process both form encoded and JSON data
 ############################################################
 post "/fillorder" do
-    params = JSON.parse(request.body.read) unless params["stockName"]
-    return if !assert_params(params, "stockName", "stockAmount", "userId", "transactionId")
+    #try converting to json if arguments aren't supplied
+    if params["stockName"].nil?
+        params = JSON.parse(request.body.read)
+    end
+    return if !assert_params(params, "stockName", "userId", "transactionId")
     stockName = params["stockName"].upcase;
     shareAmount = params["stockAmount"].to_i;
     userId = params["userId"];
@@ -381,6 +384,9 @@ post "/fillorder" do
     if transaction["transaction"] == "sell"
         buyerUser = $idCache[userId]
         sellerUser = $idCache[transaction["userId"]]
+        pp transaction
+        pp sellerUser
+        pp buyerUser
         #make sure the buyer has enough money
         transactionCost = transaction["amount"] * transaction["value"]
         if (transactionCost > buyerUser["money"])
@@ -406,7 +412,7 @@ post "/fillorder" do
         buyerUser = $idCache[transaction["userId"]]
         sellerUser = $idCache[userId]
         #make sure the seller has enough shares to fill the buy order
-        if (transaction["amount"] > user["ownedStocks"][stockName]["shares"])
+        if (transaction["amount"] > sellerUser["ownedStocks"][stockName]["shares"])
             data_return(false, {error: "You don't have enough shares to sell #{stockAmount} shares!", errorWith: "stockAmount"})
         end
 

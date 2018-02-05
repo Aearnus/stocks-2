@@ -26,15 +26,14 @@ function buyStock(uuid, event) {
     postRequest("/fillorder", function (req) {
         console.log(req.responseText);
     }
-    , {stockName: stock["name"], userId: localStorage.getItem("stocks2id"), transactionId: uuid});
+    , JSON.stringify({stockName: stock["name"], userId: localStorage.getItem("stocks2id"), transactionId: uuid}));
 }
 
 function sellStock(uuid, event) {
     postRequest("/fillorder", function (req) {
         console.log(req.responseText);
     }
-    , {stockName: stock["name"], userId: localStorage.getItem("stocks2id"), transactionId: uuid});
-
+    , JSON.stringify({stockName: stock["name"], userId: localStorage.getItem("stocks2id"), transactionId: uuid}));
 }
 
 function createSellView(time, shares, shareValue, uuid) {
