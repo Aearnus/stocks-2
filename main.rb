@@ -342,8 +342,13 @@ end
 #               "errorWith": "<param>"
 #           }
 #       }
+#
+# Major thanks to
+#   http://willschenk.com/receiving-posted-json-with-sinatra/
+# for an idea to process both form encoded and JSON data
 ############################################################
 post "/fillorder" do
+    params = JSON.parse(request.body.read) unless params["stockName"]
     return if !assert_params(params, "stockName", "stockAmount", "userId", "transactionId")
     stockName = params["stockName"].upcase;
     shareAmount = params["stockAmount"].to_i;

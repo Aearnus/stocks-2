@@ -23,10 +23,17 @@ function updateStock() {
 }
 
 function buyStock(uuid, event) {
-
+    postRequest("/fillorder", function (req) {
+        console.log(req.responseText);
+    }
+    , {stockName: stock["name"], userId: localStorage.getItem("stocks2id"), transactionId: uuid});
 }
 
-function sellStock(amount, value) {
+function sellStock(uuid, event) {
+    postRequest("/fillorder", function (req) {
+        console.log(req.responseText);
+    }
+    , {stockName: stock["name"], userId: localStorage.getItem("stocks2id"), transactionId: uuid});
 
 }
 
@@ -40,7 +47,7 @@ function createSellView(time, shares, shareValue, uuid) {
     template.querySelector(".transactionInfo").children[2].textContent = shareValue;
     template.querySelector(".transactionPrice").textContent = shares * shareValue;
     template.querySelector(".transactionBuy").innerHTML = "Fill Order<br>(Buy Shares)";
-    template.querySelector(".transactionBuy").onclick = function (e) { sellStock(uuid, e); }
+    template.querySelector(".transactionBuy").onclick = function (e) { buyStock(uuid, e); }
     return template;
 }
 
@@ -53,6 +60,6 @@ function createBuyView(time, shares, shareValue, uuid) {
     template.querySelector(".transactionInfo").children[2].textContent = shareValue;
     template.querySelector(".transactionPrice").textContent = shares * shareValue;
     template.querySelector(".transactionBuy").innerHTML = "Fill Order<br>(Sell Shares)";
-    template.querySelector(".transactionBuy").onclick = function (e) { buyStock(uuid, e); }
+    template.querySelector(".transactionBuy").onclick = function (e) { sellStock(uuid, e); }
     return template;
 }
