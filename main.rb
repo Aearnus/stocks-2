@@ -2,6 +2,7 @@ require "sinatra"
 require "fileutils"
 require "securerandom"
 require "json"
+require "pp"
 
 require_relative "helper-functions.rb"
 
@@ -173,7 +174,7 @@ post "/createstock" do
         "createdBy" => userId,
         "history" => [
             {
-                "transaction" => "buy",
+                "transaction" => "done",
                 "time" => Time.now.to_i,
                 "amount" => stockAmount,
                 "value" => shareCost,
@@ -188,7 +189,7 @@ post "/createstock" do
     update_stock_cache(defaultStock)
     #write the user's new stock portfolio, now containing this stock
     user["createdStocks"] << stockName
-    user["ownedStocks"] << {name: stockName, shares: stockAmount}
+    user["ownedStocks"][stockName] = {"name" => stockName, "shares" => stockAmount}
     write_id(user, false)
     update_id_cache(user)
 
@@ -215,7 +216,7 @@ end
 #       }
 ############################################################
 post "/sellstock" do
-    return if !assert_params(params, "stockName", "shareAmount", "sharePrice", "userId", "transactionId")
+    return if !assert_params(params, "stockName", "shareAmount", "sharePrice", "userId")
     stockName = params["stockName"].upcase;
     shareAmount = params["shareAmount"].to_i;
     sharePrice = params["sharePrice"].to_i;
@@ -234,6 +235,8 @@ post "/sellstock" do
         return data_return(false, {error: "This stock isn't in your portfolio!", errorWith: "stockName"})
     end
     #make sure user has enough of stock
+    pp user["ownedStocks"]
+    pp shareAmount
     if user["ownedStocks"][stockName]["shares"] - shareAmount < 0
         return data_return(false, {error: "You don't have enough of #{stockName}!", errorWith: "stockAmount"})
     end
@@ -254,8 +257,10 @@ post "/sellstock" do
     #finally, apply the changes to cache and disk
     update_stock_cache(stock)
     update_id_cache(user)
-    write_stock(stock)
-    write_id(user)
+    write_stock(stock, false)
+    write_id(user, false)
+
+    boolnum_return(true)
 end
 
 ############################################################
@@ -278,7 +283,7 @@ end
 #       }
 ############################################################
 post "/buystock" do
-    return if !assert_params(params, "stockName", "shareAmount", "sharePrice", "userId", "transactionId")
+    return if !assert_params(params, "stockName", "shareAmount", "sharePrice", "userId")
     stockName = params["stockName"].upcase;
     shareAmount = params["shareAmount"].to_i;
     sharePrice = params["sharePrice"].to_i;
@@ -314,8 +319,10 @@ post "/buystock" do
     #finally, apply the changes to cache and disk
     update_stock_cache(stock)
     update_id_cache(user)
-    write_stock(stock)
-    write_id(user)
+    write_stock(stock, false)
+    write_id(user, false)
+
+    boolnum_return(true)
 end
 
 ############################################################
@@ -415,9 +422,11 @@ post "/fillorder" do
     update_stock_cache(stock)
     update_id_cache(buyerUser)
     update_id_cache(sellerUser)
-    write_stock(stock)
-    write_id(buyerUser)
-    write_id(sellerUser)
+    write_stock(stock, false)
+    write_id(buyerUser, false)
+    write_id(sellerUser, false)
+
+    boolnum_return(true)
 end
 
 ############################################################

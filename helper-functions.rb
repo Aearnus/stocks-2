@@ -165,6 +165,7 @@ end
 #   Number -- the average value of the stock
 ############################################################
 def get_stock_value(stockObject, transactions=25)
+    # TODO: make this only count done transactions
     if transactions > stockObject["history"].length
         transactions = stockObject["history"].length
     end

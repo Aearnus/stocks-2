@@ -83,7 +83,7 @@ function stockHistoryToChange(stock) {
         }
         // start looking from end of history
         var transaction = stockHistory[stockHistory.length - transactionI - 1];
-        if (transaction["transaction"] == "buy") {
+        if (transaction["transaction"] == "done") {
             buyAmount++;
             totalValue += transaction["value"];
         }
