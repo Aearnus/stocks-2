@@ -7,7 +7,7 @@ require "pp"
 require_relative "helper-functions.rb"
 
 set :bind, "0.0.0.0"
-set :port, 4567
+set :port, 25565
 set :public_folder, "public"
 
 set :server, 'webrick'
