@@ -390,7 +390,7 @@ post "/fillorder" do
         #make sure the buyer has enough money
         transactionCost = transaction["amount"] * transaction["value"]
         if (transactionCost > buyerUser["money"])
-            data_return(false, {error: "You don't have enough money to buy #{stockAmount} shares! (required: $#{stockAmount * shareCost})", errorWith: "stockAmount"})
+            data_return(false, {error: "You don't have enough money to buy #{transaction["amount"]} shares! (required: $#{stockAmount * shareCost})", errorWith: "stockAmount"})
         end
 
         #everything is good, let's commit the transaction
@@ -413,7 +413,7 @@ post "/fillorder" do
         sellerUser = $idCache[userId]
         #make sure the seller has enough shares to fill the buy order
         if (transaction["amount"] > sellerUser["ownedStocks"][stockName]["shares"])
-            data_return(false, {error: "You don't have enough shares to sell #{stockAmount} shares!", errorWith: "stockAmount"})
+            data_return(false, {error: "You don't have enough shares to sell #{transaction["amount"]} shares!", errorWith: "stockAmount"})
         end
 
         #everything is good, let's commit the transaction

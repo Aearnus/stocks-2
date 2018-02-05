@@ -40,7 +40,9 @@ body {
 	background-color: var(--bg);
 	box-shadow: 0px 0px 10rem 2rem #0003;
 }
-
+a {
+	text-decoration: none;
+}
 .halfpage {
 	width: 49%;
 	margin: 0 0 0 0;
