@@ -186,7 +186,8 @@ end
 #   A stock object, minus transaction userId, or stock createdBy
 ############################################################
 def sanitize_stock(stock)
-    out = stock.deep_copy
+    #deep copy the object
+    out = Marshal.load(Marshal.dump(stock))
     out["createdBy"] = ""
     out["history"].each_with_index do |_, index|
         out["history"][index]["userId"] = ""
