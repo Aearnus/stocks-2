@@ -238,9 +238,17 @@ post "/sellstock" do
     pp user["ownedStocks"]
     pp shareAmount
     if user["ownedStocks"][stockName]["shares"] - shareAmount < 0
-        return data_return(false, {error: "You don't have enough of #{stockName}!", errorWith: "stockAmount"})
+        return data_return(false, {error: "You don't have enough of #{stockName}!", errorWith: "shareAmount"})
     end
-
+    #make sure they don't try to sell negative stocks
+    if shareAmount <= 0
+        return data_return(false, {error: "Invalid share amount!", errorWith: "shareAmount"})
+    end
+    #...for a negative price
+    if sharePrice <= 0
+        return data_return(false, {error: "Invalid share price!", errorWith: "sharePrice"})
+    end
+    
     #if all this is good, actually sell the stock!
     stock = $stockCache[stockName]
     #take the stock away from the user
@@ -301,6 +309,14 @@ post "/buystock" do
     transactionPrice = shareAmount * sharePrice
     if user["money"] - transactionPrice < 0
         return data_return(false, {error: "You don't have enough money! You need $#{transactionPrice}.", errorWith: "stockAmount"})
+    end
+    #make sure they don't try to sell negative stocks
+    if shareAmount <= 0
+        return data_return(false, {error: "Invalid share amount!", errorWith: "shareAmount"})
+    end
+    #...for a negative price
+    if sharePrice <= 0
+        return data_return(false, {error: "Invalid share price!", errorWith: "sharePrice"})
     end
 
     #if all this is good, actually post the buy order!
