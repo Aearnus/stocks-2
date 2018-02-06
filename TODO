@@ -3,7 +3,6 @@ Things that still have to be done:
 * Fix server-side money rounding
 * Fix up the stock page and make it look better
 * Manage your own business
-* Don't let someone with 0 stock fill buy order
 * Add the history graph to stocks on main page
 * Add the history graph to stocks on stock page
 * Touch up the interface to properly sell shares
