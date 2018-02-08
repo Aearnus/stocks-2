@@ -13,6 +13,8 @@
 }
 
 .transactionContainer {
+    display: inline-block;
+    margin: 0.5rem;
     width: 16em;
     background-color: var(--text-alt);
     color: var(--bg);
