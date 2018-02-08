@@ -50,7 +50,7 @@ get "/newId" do
     userId = SecureRandom.uuid
     defaultIdStats = {
         "id" => "#{userId}",
-        "money" => 100,
+        "money" => 100r,
         "createdStocks" => [],
         "ownedStocks" => {},
         "openOrders" => []
@@ -125,7 +125,7 @@ end
 ############################################################
 post "/createstock" do
     return if !assert_params(params, "stockName", "stockDesc", "stockAmount", "userId")
-    shareCost = 100
+    shareCost = 100r
     stockName = params["stockName"].upcase;
     stockDesc = params["stockDesc"];
     stockAmount = params["stockAmount"].to_i;
@@ -219,7 +219,7 @@ post "/sellstock" do
     return if !assert_params(params, "stockName", "shareAmount", "sharePrice", "userId")
     stockName = params["stockName"].upcase;
     shareAmount = params["shareAmount"].to_i;
-    sharePrice = params["sharePrice"].to_i;
+    sharePrice = params["sharePrice"].to_r.round(2);
     userId = params["userId"];
     #make sure user exists
     if !check_login_validity(userId)
@@ -248,7 +248,7 @@ post "/sellstock" do
     if sharePrice <= 0
         return data_return(false, {error: "Invalid share price!", errorWith: "sharePrice"})
     end
-    
+
     #if all this is good, actually sell the stock!
     stock = $stockCache[stockName]
     #take the stock away from the user
@@ -294,7 +294,7 @@ post "/buystock" do
     return if !assert_params(params, "stockName", "shareAmount", "sharePrice", "userId")
     stockName = params["stockName"].upcase;
     shareAmount = params["shareAmount"].to_i;
-    sharePrice = params["sharePrice"].to_i;
+    sharePrice = params["sharePrice"].to_r.round(2);
     userId = params["userId"];
     #make sure user exists
     if !check_login_validity(userId)
@@ -534,7 +534,7 @@ get "/idinfo/*" do |id|
     if !check_login_validity(id)
         return data_return(false, {error: "Invalid user ID!", errorWith: "userId"})
     else
-        return data_return(true, $idCache[id])
+        return data_return(true, sanitize_user($idCache[id]))
     end
 end
 

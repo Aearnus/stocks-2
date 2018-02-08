@@ -47,7 +47,12 @@ def load_stock_cache
     File.foreach("stock-list") do |stock|
         stock.chomp!
         next if stock.empty?
-        $stockCache[stock] = JSON.parse(File.read("stocks/#{stock.chomp}"))
+        stockObject = JSON.parse(File.read("stocks/#{stock.chomp}"))
+        stockObject[averageValue] = stockObject[averageValue].to_r.round(2)
+        stockObject["history"].each do |transaction|
+            transaction["value"] = transaction["value"].to_r.round(2)
+        end
+        $stockCache[stock] = stockObject
     end
 end
 def update_stock_cache(stockObject)
@@ -59,7 +64,9 @@ def load_id_cache
     File.foreach("id-list") do |id|
         id.chomp!
         next if id.empty?
-        $idCache[id] = JSON.parse(File.read("ids/#{id.chomp}"))
+        idObject = JSON.parse(File.read("ids/#{id.chomp}"))
+        idObject["money"] = idObject["money"].to_r.round(2)
+        $idCache[id] = idObject
     end
 end
 def update_id_cache(idObject)
@@ -180,6 +187,7 @@ end
 ############################################################
 # sanitize_stock(stock)
 # Removes sensitive information from the stock object
+# Also, convert the values to their proper return values
 # Arguments:
 #   stock: the stock object to sanitize
 # Return value:
@@ -192,6 +200,24 @@ def sanitize_stock(stock)
     out["history"].each_with_index do |_, index|
         out["history"][index]["userId"] = ""
     end
+    out["averageValue"] = out["averageValue"].to_r.round(2).to_f
+    out["history"].each do |transaction|
+        transaction["value"] = transaction["value"].to_r.round(2).to_f
+    end
+    return out
+end
+
+############################################################
+# sanitize_user(user)
+# Convert the values to their proper return values (rational -> float)
+# Arguments:
+#   user: the user object to sanitize
+# Return value:
+#   A user object, with "money" changed
+############################################################
+def sanitize_user(user)
+    out = Marshal.load(Marshal.dump(user))
+    out["money"] = out["money"].to_r.round(2).to_f
     return out
 end
 
