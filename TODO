@@ -7,6 +7,7 @@ Things that still have to be done:
 * Touch up the interface to create a company
 * Stock search
 * Special stocks
+* Fix stock change counters
 * Worthless capitalist trash tab
 ? Add to the stock JSON object to allow partial sales
 ? Add a username/password alongside the ID token system (use the usernames/passwords as a private key to encrypt the ID?)

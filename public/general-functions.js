@@ -60,7 +60,21 @@ function funnyName() {
         "Bury Me In My Money",
         "Why Are You Here?",
         "Bitcoin Edition",
-        "The Market Crashes Today"
+        "The Market Crashes Today",
+        "A Year In The Making",
+        "Because Why Not?",
+        "Virtual Money for Virtual Goods",
+        "Not Cryptocurrency",
+        "Definitely Cryptocurrency",
+        "Backed By The Blockchain",
+        "Grab Your Calculator",
+        "Aearnus's Wild Ride",
+        "TristanBomb's Wild Ride",
+        "Why Read?",
+        "Money Doesn't Grow On Trees",
+        "Pay Your Dividends",
+        "Diversify Your Portfolio",
+        "Simplify Your Portfolio"
     ]
     var finalName = nameArray[Math.floor(Math.random() * nameArray.length)];
     document.title = "Stocks 2: " + finalName;
