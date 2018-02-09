@@ -48,7 +48,7 @@ def load_stock_cache
         stock.chomp!
         next if stock.empty?
         stockObject = JSON.parse(File.read("stocks/#{stock.chomp}"))
-        stockObject[averageValue] = stockObject[averageValue].to_r.round(2)
+        stockObject["averageValue"] = stockObject["averageValue"].to_r.round(2)
         stockObject["history"].each do |transaction|
             transaction["value"] = transaction["value"].to_r.round(2)
         end
@@ -188,6 +188,7 @@ end
 # sanitize_stock(stock)
 # Removes sensitive information from the stock object
 # Also, convert the values to their proper return values
+# Also, only take 4 of the stock transactions at random -- but keep all the "done"s
 # Arguments:
 #   stock: the stock object to sanitize
 # Return value:
@@ -197,6 +198,10 @@ def sanitize_stock(stock)
     #deep copy the object
     out = Marshal.load(Marshal.dump(stock))
     out["createdBy"] = ""
+    buys = out["history"].select{|t| t["transaction"] == "buy"}.sample(6)
+    sells = out["history"].select{|t| t["transaction"] == "sell"}.sample(6)
+    dones = out["history"].select{|t| t["transaction"] == "done"}
+    out["history"] = ([] << buys << sells << dones).flatten
     out["history"].each_with_index do |_, index|
         out["history"][index]["userId"] = ""
     end

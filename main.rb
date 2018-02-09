@@ -386,7 +386,11 @@ post "/fillorder" do
     transaction = get_transaction(stockName, transactionId)
     #if the transaction didn't exist
     if transaction.nil?
-        return data_return(false, {error: "This transaction does not or no longer exists!", errorWith: "transactionId"})
+        return data_return(false, {error: "This transaction does not exist!", errorWith: "transactionId"})
+    end
+    #or, if the transaction already went through
+    if transaction["transaction"] == "done"
+        return data_return(false, {error: "This transaction no longer exists!", errorWith: "transactionId"})
     end
     # distinguish between the two types of transactions
     buyerUser = []
