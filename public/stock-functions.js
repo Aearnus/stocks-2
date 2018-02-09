@@ -5,7 +5,7 @@ function init() {
     i("buyStockName").value = stock["name"];
     i("sellStockUserId").value = localStorage.getItem("stocks2id");
     i("sellStockName").value = stock["name"];
-    createHistoryGraph(i("stockHistoryGraph"), stock["history"].toSource());
+    createHistoryGraph(i("stockHistoryGraph"), stock["history"]);
 }
 
 function updateStock() {

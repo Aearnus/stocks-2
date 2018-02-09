@@ -1,6 +1,6 @@
 function createHistoryGraph(canvas, history) {
     var sortedHistory = stock["history"].filter((t) => t["transaction"] === "done").sort(function (a,b) {a["time"] - b["time"]});
-    console.log("sorted history: " + sortedHistory.toSource());
+    console.log("sorted history: " + sortedHistory.toString());
     var formattedHistory = sortedHistory.map((t) => t["value"]);
     console.log("formatted history: " + formattedHistory);
 
