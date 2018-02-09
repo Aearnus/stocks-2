@@ -10,6 +10,7 @@ function init() {
     i("createStockUserId").value = localStorage.getItem("stocks2id");
     updateUserInfo();
     populateStockList();
+    i("stockSearch").addEventListener("keydown",function(e){if (e.keyCode == 13) { stockSearch(); }});
 }
 
 function createSmallStockTicker(stockName, stockValue, stockChange) {
@@ -109,4 +110,9 @@ function updateUserInfo() {
             i("totalValue").textContent = totalValue;
         }
     });
+}
+
+function stockSearch() {
+    console.log("redirecting to: " + "/stock/" + i("stockSearch").value.toUpperCase());
+    window.location.href = "/stock/" + i("stockSearch").value.toUpperCase();
 }

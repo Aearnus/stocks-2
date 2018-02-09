@@ -77,7 +77,10 @@
 				</div>
 				<p>
 					<label for="stockSearch">Search for a stock: </label>
-					<input type="text" id="stockSearch" name="stockName">
+					<input type="text" id="stockSearch">
+					<button type="submit" onclick="stockSearch()">
+						Search
+					</button>
 				</p>
 				<div id="topStockList" class="halfpage">
 					<h3>
@@ -96,7 +99,7 @@
 						Found a Company
 					</h2>
 				</div>
-				<div class=tabContents id=bizContent>
+				<div class="tabContents" id="bizContent">
 					<form action="/createstock" method="post">
 						<p>
 							<label for="createStockStockName">Stock name:</label>
