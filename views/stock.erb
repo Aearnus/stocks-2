@@ -12,6 +12,7 @@
 		<script type="text/javascript">
 			var stock = <%= stockObject %>;
 		</script>
+		<script type="text/javascript" src="/graphing.js"></script>
 		<script type="text/javascript" src="/stock-functions.js"></script>
 	</head>
     <body onload="init()">
@@ -70,7 +71,7 @@
 						Market History
 					</h2>
 				</div>
-				<div class="stockGraph">
+				<div id="stockHistoryGraph" class="stockGraph">
 					STOCK TRANSACTION HISTORY PLACEHOLDER
 				</div>
 			</section>
