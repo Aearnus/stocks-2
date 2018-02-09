@@ -1,5 +1,5 @@
 function createHistoryGraph(canvas, history) {
-    var sortedHistory = stock["history"].filter((t) => t["transaction"] === "done").sort(function (a,b) {a["time"] - b["time"]});
+    var sortedHistory = history.filter((t) => t["transaction"] === "done").sort(function (a,b) {a["time"] - b["time"]});
     console.log("sorted history: " + sortedHistory.toString());
     var formattedHistory = sortedHistory.map((t) => t["value"]);
     console.log("formatted history: " + formattedHistory);
@@ -18,6 +18,9 @@ function createHistoryGraph(canvas, history) {
         labels: Array(formattedHistory.length).fill(0).map((v,k) => k + 1).reverse()
     },
     options: {
+        legend: {
+            display: false
+        },
         responsive: true,
         maintainAspectRatio: false,
         scales: {

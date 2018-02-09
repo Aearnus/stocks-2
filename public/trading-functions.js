@@ -52,6 +52,7 @@ function createLargeStockTicker(stockName, amountOwned, parentNode) {
                 template.querySelector(".stockOwnedTickerLarge").remove();
             }
             template.querySelector(".stockDescriptionTickerLarge").textContent = stockDescription;
+            createHistoryGraph(template.querySelector(".stockGraph"), stock["history"]);
         }
     });
     return template;

@@ -34,7 +34,7 @@
 	position: relative;
 	background-color: var(--text-alt);
 	width: 100%;
-	height: 8rem;
+	height: 12rem;
 	padding: 0.5rem;
 	text-align: left;
 }
@@ -93,10 +93,11 @@
 	position: absolute;
 	top: 3.5rem;
 	left: 0.5rem;
-	height: 4rem;
+	height: 8rem;
 	width: calc(100% - 1rem);
 	background-color: #111;
 	color: var(--bg-alt);
 	text-align: center;
-	padding-top: 1.5rem;
+	padding: 0.5rem;
+	padding-top: 1rem;
 }

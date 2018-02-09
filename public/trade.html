@@ -9,6 +9,8 @@
 		<link rel="stylesheet" type="text/css" href="index.css">
 		<link rel="stylesheet" type="text/css" href="stock-tickers.css">
 		<script type="text/javascript" src="general-functions.js"></script>
+		<script type="text/javascript" src="/Chart.min.js"></script>
+		<script type="text/javascript" src="/graphing.js"></script>
 		<script type="text/javascript" src="trading-functions.js"></script>
 	</head>
 	<body onload="init()">
@@ -25,7 +27,9 @@
 			</div>
 			<span class="stockOwnedTickerLarge">10</span>
 			<div class="stockDescriptionTickerLarge"></div>
-			<div class="stockGraphTickerLarge">STOCK TRANSACTION HISTORY PLACEHOLDER</div>
+			<div class="stockGraphTickerLarge"><canvas class="stockGraph">
+				STOCK TRANSACTION HISTORY GRAPH
+			</canvas></div>
 		</div></a></template>
 		<a href="/trade.html">
 			<div id="titleContainer">
