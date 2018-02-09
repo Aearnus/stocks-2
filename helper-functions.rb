@@ -189,7 +189,7 @@ end
 # Removes sensitive information from the stock object
 # Also, convert the values to their proper return values
 # Also, only take 6 of the stock transactions at random -- but keep all the "done"s
-# Also, drop all but the 100 newest done's
+# Also, drop all but the 100 newest done transactions
 # Arguments:
 #   stock: the stock object to sanitize
 # Return value:
