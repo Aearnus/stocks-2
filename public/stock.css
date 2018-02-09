@@ -2,14 +2,14 @@
     content: "$"
 }
 
-.stockGraph {
+.stockGraphContainer {
     width: 100%;
-    height: 8rem;
+    height: 24rem;
     text-align: center;
     background-color: #111;
     color: var(--bg-alt);
     padding: 0.5rem;
-    display: relative;
+    position: relative;
 }
 
 .transactionContainer {

@@ -12,6 +12,7 @@
 		<script type="text/javascript">
 			var stock = <%= stockObject %>;
 		</script>
+		<script type="text/javascript" src="/Chart.min.js"></script>
 		<script type="text/javascript" src="/graphing.js"></script>
 		<script type="text/javascript" src="/stock-functions.js"></script>
 	</head>
@@ -71,8 +72,10 @@
 						Market History
 					</h2>
 				</div>
-				<div id="stockHistoryGraph" class="stockGraph">
-					STOCK TRANSACTION HISTORY PLACEHOLDER
+				<div class="stockGraphContainer">
+					<canvas id="stockHistoryGraph" class="stockGraph">
+						STOCK TRANSACTION HISTORY GRAPH
+					</canvas>
 				</div>
 			</section>
 			<section>
