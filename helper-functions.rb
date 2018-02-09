@@ -171,12 +171,12 @@ end
 # Return value:
 #   Number -- the average value of the stock
 ############################################################
-def get_stock_value(stockObject, transactions=25)
-    # TODO: make this only count done transactions
-    if transactions > stockObject["history"].length
-        transactions = stockObject["history"].length
+def get_stock_value(stockIn, transactions=25)
+    history = stockIn["history"].select{|t| t["transaction"] == "done"}
+    if transactions > history.length
+        transactions = history.length
     end
-    validTransactions = stockObject["history"][-transactions .. -1]
+    validTransactions = history[-transactions .. -1]
     totalValue = 0
     validTransactions.each do |t|
         totalValue += t["value"]

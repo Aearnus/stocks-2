@@ -450,6 +450,9 @@ post "/fillorder" do
     #update stock average value
     stock["averageValue"] = get_stock_value(stock)
 
+    #touch the time
+    transaction["time"] = Time.now.to_i
+
     #finally, update the caches and write to disk
     #this happens regardless of who buys and who sells
     update_stock_cache(stock)

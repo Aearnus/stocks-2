@@ -1,30 +1,21 @@
 function createHistoryGraph(canvas, history) {
+    var sortedHistory = stock["history"].filter((t) => t["transaction"] === "done").sort(function (a,b) {a["time"] - b["time"]});
+    console.log("sorted history: " + sortedHistory.toSource());
+    var formattedHistory = sortedHistory.map((t) => t["value"]);
+    console.log("formatted history: " + formattedHistory);
+
     var ctx = canvas.getContext("2d");
     var historyGraph = new Chart(ctx, {
     type: "line",
     data: {
-        labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
         datasets: [{
-            label: '# of Votes',
-            data: [12, 19, 3, 5, 2, 3],
-            backgroundColor: [
-                'rgba(255, 99, 132, 0.2)',
-                'rgba(54, 162, 235, 0.2)',
-                'rgba(255, 206, 86, 0.2)',
-                'rgba(75, 192, 192, 0.2)',
-                'rgba(153, 102, 255, 0.2)',
-                'rgba(255, 159, 64, 0.2)'
-            ],
-            borderColor: [
-                'rgba(255,99,132,1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(153, 102, 255, 1)',
-                'rgba(255, 159, 64, 1)'
-            ],
-            borderWidth: 1
-        }]
+            label: "Stock Value History",
+            backgroundColor: "#26cd1e",
+            borderColor: "#000",
+            data: formattedHistory,
+            borderWidth: 2
+        }],
+        labels: Array(formattedHistory.length).fill(0).map((v,k) => k + 1).reverse()
     },
     options: {
         responsive: true,
@@ -32,9 +23,9 @@ function createHistoryGraph(canvas, history) {
         scales: {
             yAxes: [{
                 ticks: {
-                    beginAtZero:true
+                    beginAtZero: false
                 }
-            }]
+            }],
         }
     }
 });
