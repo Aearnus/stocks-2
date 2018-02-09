@@ -109,12 +109,9 @@ def check_login_validity(uuid)
     if uuid.length != 36
         return false
     end
-    # TODO: USE THE CACHE
-    File.foreach("id-list") do |fileUuid|
-        if uuid == fileUuid.chomp
-            puts "UUID GOOD"
-            return true
-        end
+    if ($idCache.keys.include? uuid)
+        puts "UUID GOOD"
+        return true
     end
     puts "UUID BAD"
     return false
@@ -132,12 +129,9 @@ def check_if_stock_exists(stock)
     if stock.length > 10
         return false
     end
-    # TODO: USE THE CACHE
-    File.foreach("stock-list") do |fileStock|
-        if stock == fileStock.chomp
-            puts "STOCK EXISTS"
-            return true
-        end
+    if ($stockCache.keys.include? stock)
+        puts "STOCK EXISTS"
+        return true
     end
     puts "STOCK DOESN'T EXIST"
     return false
