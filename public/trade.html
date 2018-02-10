@@ -78,20 +78,26 @@
 					</h2>
 				</div>
 				<div class="tabContents">
-					<label for="stockSearch">Search for a stock: </label>
-					<input type="text" id="stockSearch">
-					<button type="submit" onclick="stockSearch()">
-						Search
-					</button>
-					<div id="topStockList" class="halfpage">
+					<div>
+						<label for="stockSearch">Search for a stock: </label>
+						<input type="text" id="stockSearch">
+						<button type="submit" onclick="stockSearch()">
+							Search
+						</button>
+					</div>
+					<div class="halfpage">
 						<h3>
 							Top Stocks:
 						</h3>
+						<div id="topStockList">
+						</div>
 					</div>
-					<div id="newStockList" class="halfpage rightalign">
+					<div class="halfpage rightalign">
 						<h3>
 							New Stocks:
 						</h3>
+						<div id="newStockList">
+						</div>
 					</div>
 				</div>
 			</section>
