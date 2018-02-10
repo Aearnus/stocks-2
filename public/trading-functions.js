@@ -1,3 +1,5 @@
+var user = {}
+
 function init() {
     funnyName();
     verifyLogin(function (status) {
@@ -6,11 +8,15 @@ function init() {
             window.location.href = "/";
         }
     });
-    // TODO: create an actual stock creation user interface
-    i("createStockUserId").value = localStorage.getItem("stocks2id");
     updateUserInfo();
     populateStockList();
     i("stockSearch").addEventListener("keydown",function(e){if (e.keyCode == 13) { stockSearch(); }});
+    i("createStockName").value = "";
+    i("createStockName").addEventListener("keydown", function(e){submitCreateStock(e)});
+    i("createStockDesc").value = "";
+    i("createStockDesc").addEventListener("keydown", function(e){submitCreateStock(e)});
+    i("createStockAmount").value = "";
+    i("createStockAmount").addEventListener("keydown", function(e){submitCreateStock(e)});
 }
 
 function createSmallStockTicker(stockName, stockValue, stockChange) {
@@ -59,6 +65,8 @@ function createLargeStockTicker(stockName, amountOwned, parentNode) {
     return template;
 }
 function populateStockList() {
+    emptyNode(i("topStockList"));
+    emptyNode(i("newStockList"));
     // first, populate the top stocks list
     getRequest("/liststocks?criteria=top&n=10", function (req) {
         var jsonResponse = JSON.parse(req.responseText);
@@ -87,6 +95,8 @@ function populateStockList() {
     });
 }
 function updateUserInfo() {
+    emptyNode(i("ownedStockList"));
+    emptyNode(i("createdStockList"));
     getRequest("/idinfo/" + localStorage.getItem("stocks2id"), function (req) {
         var jsonResponse = JSON.parse(req.responseText);
         console.log(jsonResponse);
@@ -94,17 +104,18 @@ function updateUserInfo() {
             alert("There was an issue getting the user information! Error: " + jsonResponse["data"]["error"] + " You will be redirected back to the login page.");
             window.location.href = "/";
         } else {
-            i("money").textContent = jsonResponse["data"]["money"];
-            var totalValue = jsonResponse["data"]["money"];
-            for (var stockIndex in jsonResponse["data"]["ownedStocks"]) {
-                var stockName = jsonResponse["data"]["ownedStocks"][stockIndex]["name"];
-                var amountOwned = jsonResponse["data"]["ownedStocks"][stockIndex]["shares"];
+            user = jsonResponse["data"];
+            i("money").textContent = user["money"];
+            var totalValue = user["money"];
+            for (var stockIndex in user["ownedStocks"]) {
+                var stockName = user["ownedStocks"][stockIndex]["name"];
+                var amountOwned = user["ownedStocks"][stockIndex]["shares"];
                 // TODO: multiply this by the stock value
                 totalValue += amountOwned; // * stockValue;
                 createLargeStockTicker(stockName, amountOwned, i("ownedStockList"));
             }
-            for (var stockIndex in jsonResponse["data"]["createdStocks"]) {
-                var stockName = jsonResponse["data"]["createdStocks"][stockIndex];
+            for (var stockIndex in user["createdStocks"]) {
+                var stockName = user["createdStocks"][stockIndex];
                 createLargeStockTicker(stockName, 0, i("createdStockList"));
             }
             i("totalValue").textContent = totalValue;
@@ -119,23 +130,104 @@ function stockSearch() {
 
 function updateCreateStock() {
     var button = i("createStockSubmit");
+    var disableButton = [];
 
     var stockName = i("createStockName").value;
     var stockNameStatus = i("createStockNameStatus");
+    // validate stock name
     if (stockName === "") {
-        stockNameStatus.textContent = "1 to 10 alphanumeric characters.";
+        stockNameStatus.textContent = "The name of the business you wish to create. 1 to 10 alphanumeric characters.";
         stockNameStatus.className = "createStockStatus";
-        button.disabled = false;
+        disableButton.push(true);
     } else {
+        stockNameStatus.textContent = "Ok!";
+        stockNameStatus.className = "createStockStatus createStockOk";
+        disableButton.push(false);
         if (stockName.length > 10) {
-            stockNameStatus.textContent = "1 to 10 alphanumeric characters.";
-            stockNameStatus.className = "createStockStatus";
-            button.disabled = true;
+            stockNameStatus.textContent = "Stock name must be 10 characters or less.";
+            stockNameStatus.className = "createStockStatus createStockError";
+            disableButton.push(true);
+        } if (!/^[a-z0-9]+$/i.test(stockName)) {
+            stockNameStatus.textContent = "Stock name must only contain alphanumeric characters.";
+            stockNameStatus.className = "createStockStatus createStockError";
+            disableButton.push(true);
         }
-        //TODO FINISH VALIDATION
     }
-
+    //validate stock description
+    var stockDesc = i("createStockDesc").value;
+    var stockDescStatus = i("createStockDescStatus");
+    if (stockDesc === "") {
+        stockDescStatus.textContent = "What does this business entail? 4 to 100 alphanumeric characters.";
+        stockDescStatus.className = "createStockStatus";
+        disableButton.push(true);
+    } else {
+        stockDescStatus.textContent = "Ok!";
+        stockDescStatus.className = "createStockStatus createStockOk";
+        disableButton.push(false);
+        if (stockDesc.length > 100) {
+            stockDescStatus.textContent = "Stock description must be 100 characters or less.";
+            stockDescStatus.className = "createStockStatus createStockError";
+            disableButton.push(true);
+        } if (stockDesc.length < 4) {
+            stockDescStatus.textContent = "Stock description must be at least 4 characters.";
+            stockDescStatus.className = "createStockStatus createStockError";
+            disableButton.push(true);
+        } if (!/^[a-z0-9 ]+$/i.test(stockDesc)) {
+            stockDescStatus.textContent = "Stock description must only contain alphanumeric characters or spaces.";
+            stockDescStatus.className = "createStockStatus createStockError";
+            disableButton.push(true);
+        }
+    }
+    // validate stock amount
+    var stockAmount = i("createStockAmount").value;
+    var stockAmountStatus = i("createStockAmountStatus");
+    if (stockAmount === "") {
+        stockAmountStatus.textContent = "How many shares to create? At least 200, at $100 a share.";
+        stockAmountStatus.className = "createStockStatus";
+        disableButton.push(true);
+    } else {
+        stockAmountStatus.textContent = "Ok!";
+        stockAmountStatus.className = "createStockStatus createStockOk";
+        disableButton.push(false);
+        if (stockAmount < 200) {
+            stockAmountStatus.textContent = "You must create at least 200 shares.";
+            stockAmountStatus.className = "createStockStatus createStockError";
+            disableButton.push(true);
+        }
+    }
+    // validate cash amount
+    var stockValue = i("createStockValue");
+    var value = stockAmount * 100
+    stockValue.textContent = value
+    if (value > user["money"]) {
+        stockValue.className = "money createStockStatus createStockError";
+    } else {
+        stockValue.className = "money createStockStatus createStockOk";
+    }
+    button.disabled = disableButton.some(x=>x);
+}
+function submitCreateStock(e) {
+    if (e.keyCode == 13) {
+        i("createStockSubmit").click();
+    }
 }
 function createStock() {
-
+    if (!i("createStockSubmit").disabled) {
+        postRequest(
+            "/createstock",
+            function(req) {
+                console.log(req.responseText);
+                updateUserInfo();
+                populateStockList();
+            },
+            JSON.stringify(
+                {
+                    stockName: i("createStockName").value,
+                    stockDesc: i("createStockDesc").value,
+                    stockAmount: i("createStockAmount").value,
+                    userId: localStorage.getItem("stocks2id")
+                }
+            )
+        );
+    }
 }

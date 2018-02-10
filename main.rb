@@ -124,6 +124,10 @@ end
 #       }
 ############################################################
 post "/createstock" do
+    #try converting to json if arguments aren't supplied
+    if params["stockName"].nil?
+        params = JSON.parse(request.body.read)
+    end
     return if !assert_params(params, "stockName", "stockDesc", "stockAmount", "userId")
     shareCost = 100r
     stockName = params["stockName"].upcase;

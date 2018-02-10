@@ -136,6 +136,9 @@ button {
 	padding: 0.5rem 0rem 0.3rem;
 	border: none;
 }
+button:disabled {
+	background-color: grey;
+}
 
 #yourId {
 	width: 100%;
@@ -157,6 +160,10 @@ section {
 	width: 100%;
 }
 
+.money::before {
+	content: "$"
+}
+
 #money::before {
 	content: "Liquid funds: $";
 }
@@ -170,6 +177,13 @@ section {
 }
 .createStockGroup {
 	margin-bottom: 1rem;
+}
+.createStockError {
+	color: red;
+	font-weight: bold;
+}
+.createStockOk {
+	color: green;
 }
 
 footer {

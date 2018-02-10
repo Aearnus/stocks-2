@@ -35,6 +35,12 @@ function verifyLogin(callback) {
     }, idData);
 }
 
+function emptyNode(node) {
+    while (node.firstChild) {
+        node.removeChild(node.firstChild);
+    }
+}
+
 function funnyName() {
     var nameArray = [
         "Online Shkrelism",

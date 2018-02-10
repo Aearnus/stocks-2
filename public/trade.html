@@ -104,20 +104,21 @@
 				<div class="tabContents" id="bizContent">
 					<div class="createStockGroup">
 						<label for="createStockName">Stock name:</label>
-						<input type="text" id="createStockName" name="stockName" onkeydown="updateCreateStock()">
-						<div class="createStockStatus" id="createStockNameStatus">1 to 10 alphanumeric characters.</div>
+						<input type="text" id="createStockName" name="stockName" oninput="updateCreateStock()">
+						<div class="createStockStatus" id="createStockNameStatus">The name of the business you wish to create. 1 to 10 alphanumeric characters.</div>
 					</div>
 					<div class="createStockGroup">
 						<label for="createStockDesc">Stock description:</label>
-						<input type="text" id="createStockDesc" name="stockDesc" onkeydown="updateCreateStock()">
-						<div class="createStockStatus" id="createStockDescStatus">4 to 100 alphanumeric characters</div>
+						<input type="text" id="createStockDesc" name="stockDesc" oninput="updateCreateStock()">
+						<div class="createStockStatus" id="createStockDescStatus">What does this business entail? 4 to 100 alphanumeric characters.</div>
 					</div>
 					<div class="createStockGroup">
 						<label for="createStockAmount">Amount of stocks to create:</label>
-						<input type="text" id="createStockAmount" name="stockAmount" onkeydown="updateCreateStock()">
-						<div class="createStockStatus" id="createStockAmountStatus">At least 200, at $100 a share.</div>
+						<input type="number" id="createStockAmount" name="stockAmount" oninput="updateCreateStock()">
+						<div class="createStockStatus" id="createStockAmountStatus">How many shares to create? At least 200, at $100 a share.</div>
 					</div>
-					<button id="createStockSubmit" onclick="createStock()">
+					This will cost you <span class="money createStockStatus" id="createStockValue">20000</span>.
+					<button id="createStockSubmit" onclick="createStock()" disabled>
 						Create
 					</button>
 				</div>
