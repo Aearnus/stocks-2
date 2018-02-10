@@ -123,6 +123,10 @@ a {
 	background-color: var(--accent);
 }
 
+.tabContents {
+	margin-top: 1rem;
+}
+
 button {
 	color: var(--bg);
 	font-size: 1.2em;
@@ -158,6 +162,14 @@ section {
 }
 #totalValue::before {
 	content: "Total value: $";
+}
+
+.createStockStatus {
+	color: var(--text-alt);
+	font-style: italic;
+}
+.createStockGroup {
+	margin-bottom: 1rem;
 }
 
 footer {

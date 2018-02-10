@@ -116,3 +116,26 @@ function stockSearch() {
     console.log("redirecting to: " + "/stock/" + i("stockSearch").value.toUpperCase());
     window.location.href = "/stock/" + i("stockSearch").value.toUpperCase();
 }
+
+function updateCreateStock() {
+    var button = i("createStockSubmit");
+
+    var stockName = i("createStockName").value;
+    var stockNameStatus = i("createStockNameStatus");
+    if (stockName === "") {
+        stockNameStatus.textContent = "1 to 10 alphanumeric characters.";
+        stockNameStatus.className = "createStockStatus";
+        button.disabled = false;
+    } else {
+        if (stockName.length > 10) {
+            stockNameStatus.textContent = "1 to 10 alphanumeric characters.";
+            stockNameStatus.className = "createStockStatus";
+            button.disabled = true;
+        }
+        //TODO FINISH VALIDATION
+    }
+
+}
+function createStock() {
+
+}
