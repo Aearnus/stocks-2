@@ -1,4 +1,5 @@
 var user = {}
+var stockValues = {}
 
 function init() {
     funnyName();
@@ -8,8 +9,7 @@ function init() {
             window.location.href = "/";
         }
     });
-    updateUserInfo();
-    populateStockList();
+    update();
     i("stockSearch").addEventListener("keydown",function(e){if (e.keyCode == 13) { stockSearch(); }});
     i("createStockName").value = "";
     i("createStockName").addEventListener("keydown", function(e){submitCreateStock(e)});
@@ -17,6 +17,23 @@ function init() {
     i("createStockDesc").addEventListener("keydown", function(e){submitCreateStock(e)});
     i("createStockAmount").value = "";
     i("createStockAmount").addEventListener("keydown", function(e){submitCreateStock(e)});
+}
+
+function update() {
+    stockValues = {};
+    updateUserInfo();
+    populateStockList();
+}
+
+function tryUpdateTotalValue() {
+    // this uses the result of two seperate callbacks
+    var v = 0;
+    for (var key in stockValues) {
+        v += stockValues[key];
+    }
+    if ("money" in user) {
+        i("totalValue").textContent = user["money"] + v;
+    }
 }
 
 function createSmallStockTicker(stockName, stockValue, stockChange) {
@@ -30,6 +47,8 @@ function createSmallStockTicker(stockName, stockValue, stockChange) {
     return template;
 }
 function createLargeStockTicker(stockName, amountOwned, parentNode) {
+    // NOTE: This has 1 side effect
+    // it modifies document.stockValue
     console.log("Creating large stock ticker for stock " + stockName);
     // default values for the ticker, then the ticker itself
     var stockChange = 100;
@@ -55,11 +74,14 @@ function createLargeStockTicker(stockName, amountOwned, parentNode) {
             template.querySelector(".stockChangeTickerLarge").classList.add(stockChange > 0 ? "positiveChange" : "negativeChange");
             if (amountOwned > 0) {
                 template.querySelector(".stockOwnedTickerLarge").textContent = amountOwned;
+                console.log("processing stock " + stock["name"] + " which has value " + stockValue + " for stockValues");
+                stockValues[stock["name"]] = stockValue * amountOwned;
             } else {
                 template.querySelector(".stockOwnedTickerLarge").remove();
             }
             template.querySelector(".stockDescriptionTickerLarge").textContent = stockDescription;
             createHistoryGraph(template.querySelector(".stockGraph"), stock["history"]);
+            tryUpdateTotalValue()
         }
     });
     return template;
@@ -110,15 +132,13 @@ function updateUserInfo() {
             for (var stockIndex in user["ownedStocks"]) {
                 var stockName = user["ownedStocks"][stockIndex]["name"];
                 var amountOwned = user["ownedStocks"][stockIndex]["shares"];
-                // TODO: multiply this by the stock value
-                totalValue += amountOwned; // * stockValue;
                 createLargeStockTicker(stockName, amountOwned, i("ownedStockList"));
             }
             for (var stockIndex in user["createdStocks"]) {
                 var stockName = user["createdStocks"][stockIndex];
                 createLargeStockTicker(stockName, 0, i("createdStockList"));
             }
-            i("totalValue").textContent = totalValue;
+            tryUpdateTotalValue();
         }
     });
 }
@@ -217,8 +237,7 @@ function createStock() {
             "/createstock",
             function(req) {
                 console.log(req.responseText);
-                updateUserInfo();
-                populateStockList();
+                update();
             },
             JSON.stringify(
                 {
