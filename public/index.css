@@ -171,18 +171,18 @@ section {
 	content: "Total value: $";
 }
 
-.createStockStatus {
+.inputStatus {
 	color: var(--text-alt);
 	font-style: italic;
 }
-.createStockGroup {
+.inputGroup {
 	margin-bottom: 1rem;
 }
-.createStockError {
+.inputError {
 	color: red;
 	font-weight: bold;
 }
-.createStockOk {
+.inputOk {
 	color: green;
 }
 

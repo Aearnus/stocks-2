@@ -295,6 +295,10 @@ end
 #       }
 ############################################################
 post "/buystock" do
+    #try converting to json if arguments aren't supplied
+    if params["stockName"].nil?
+        params = JSON.parse(request.body.read)
+    end
     return if !assert_params(params, "stockName", "shareAmount", "sharePrice", "userId")
     stockName = params["stockName"].upcase;
     shareAmount = params["shareAmount"].to_i;

@@ -92,22 +92,20 @@
 						Sell Shares
 					</h2>
 				</div>
-				<form action="/sellstock" method="post">
-					<p>
+				<div class="tabContents">
+					<div class="inputGroup">
 						<label for="sellStockPrice">Value per share:</label>
 						<input type="text" id="sellStockPrice" name="sharePrice">
-					</p>
-					<p>
+					</div>
+					<div class="inputGroup">
 						<label for="sellStockAmount">Amount to sell:</label>
 						<input type="text" id="sellStockAmount" name="shareAmount">
-					</p>
-					<input type="text" id="sellStockUserId" name="userId" hidden="true">
-					<input type="text" id="sellStockName" name="stockName" hidden="true">
+					</div>
 
-					<button type="submit">
+					<button type="submit" id="sellSubmit" onclick="sellStock">
 						Create Sell Order
 					</button>
-				</form>
+				</div>
 			</section>
 			<section>
 				<div class="tab">
@@ -123,22 +121,22 @@
 						Buy Shares
 					</h2>
 				</div>
-				<form action="/buystock" method="post">
-					<p>
-						<label for="buyStockPrice">Value per share:</label>
-						<input type="text" id="buyStockPrice" name="sharePrice">
-					</p>
-					<p>
-						<label for="buyStockAmount">Amount to buy:</label>
-						<input type="text" id="buyStockAmount" name="shareAmount">
-					</p>
-					<input type="text" id="buyStockUserId" name="userId" hidden="true">
-					<input type="text" id="buyStockName" name="stockName" hidden="true">
-
-					<button type="submit">
+				<div class="tabContents">
+					<div class="inputGroup">
+						<label for="buyPrice">Value per share:</label>
+						<input type="number" id="buyPrice" step="any">
+					</div>
+					<div class="inputGroup">
+						<label for="buyAmount">Amount to buy:</label>
+						<input type="number" id="buyAmount">
+					</div>
+					<div class="inputGroup">
+						The total price of this order is <span class="money inputStatus" id="buyValue">0</span>.
+					</div>
+					<button type="submit" id="buySubmit" onclick="buyStock()" disabled>
 						Create Buy Order
 					</button>
-				</form>
+				</div>
 			</section>
         </div>
 		<footer>

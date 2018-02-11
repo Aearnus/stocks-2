@@ -157,19 +157,19 @@ function updateCreateStock() {
     // validate stock name
     if (stockName === "") {
         stockNameStatus.textContent = "The name of the business you wish to create. 1 to 10 alphanumeric characters.";
-        stockNameStatus.className = "createStockStatus";
+        stockNameStatus.className = "inputStatus";
         disableButton.push(true);
     } else {
         stockNameStatus.textContent = "Ok!";
-        stockNameStatus.className = "createStockStatus createStockOk";
+        stockNameStatus.className = "inputStatus inputOk";
         disableButton.push(false);
         if (stockName.length > 10) {
             stockNameStatus.textContent = "Stock name must be 10 characters or less.";
-            stockNameStatus.className = "createStockStatus createStockError";
+            stockNameStatus.className = "inputStatus inputError";
             disableButton.push(true);
         } if (!/^[a-z0-9]+$/i.test(stockName)) {
             stockNameStatus.textContent = "Stock name must only contain alphanumeric characters.";
-            stockNameStatus.className = "createStockStatus createStockError";
+            stockNameStatus.className = "inputStatus inputError";
             disableButton.push(true);
         }
     }
@@ -178,23 +178,23 @@ function updateCreateStock() {
     var stockDescStatus = i("createStockDescStatus");
     if (stockDesc === "") {
         stockDescStatus.textContent = "What does this business entail? 4 to 100 alphanumeric characters.";
-        stockDescStatus.className = "createStockStatus";
+        stockDescStatus.className = "inputStatus";
         disableButton.push(true);
     } else {
         stockDescStatus.textContent = "Ok!";
-        stockDescStatus.className = "createStockStatus createStockOk";
+        stockDescStatus.className = "inputStatus inputOk";
         disableButton.push(false);
         if (stockDesc.length > 100) {
             stockDescStatus.textContent = "Stock description must be 100 characters or less.";
-            stockDescStatus.className = "createStockStatus createStockError";
+            stockDescStatus.className = "inputStatus inputError";
             disableButton.push(true);
         } if (stockDesc.length < 4) {
             stockDescStatus.textContent = "Stock description must be at least 4 characters.";
-            stockDescStatus.className = "createStockStatus createStockError";
+            stockDescStatus.className = "inputStatus inputError";
             disableButton.push(true);
         } if (!/^[a-z0-9 ]+$/i.test(stockDesc)) {
             stockDescStatus.textContent = "Stock description must only contain alphanumeric characters or spaces.";
-            stockDescStatus.className = "createStockStatus createStockError";
+            stockDescStatus.className = "inputStatus inputError";
             disableButton.push(true);
         }
     }
@@ -203,15 +203,15 @@ function updateCreateStock() {
     var stockAmountStatus = i("createStockAmountStatus");
     if (stockAmount === "") {
         stockAmountStatus.textContent = "How many shares to create? At least 200, at $100 a share.";
-        stockAmountStatus.className = "createStockStatus";
+        stockAmountStatus.className = "inputStatus";
         disableButton.push(true);
     } else {
         stockAmountStatus.textContent = "Ok!";
-        stockAmountStatus.className = "createStockStatus createStockOk";
+        stockAmountStatus.className = "inputStatus inputOk";
         disableButton.push(false);
         if (stockAmount < 200) {
             stockAmountStatus.textContent = "You must create at least 200 shares.";
-            stockAmountStatus.className = "createStockStatus createStockError";
+            stockAmountStatus.className = "inputStatus inputError";
             disableButton.push(true);
         }
     }
@@ -220,9 +220,9 @@ function updateCreateStock() {
     var value = stockAmount * 100
     stockValue.textContent = value
     if (value > user["money"]) {
-        stockValue.className = "money createStockStatus createStockError";
+        stockValue.className = "money inputStatus inputError";
     } else {
-        stockValue.className = "money createStockStatus createStockOk";
+        stockValue.className = "money inputStatus inputOk";
     }
     button.disabled = disableButton.some(x=>x);
 }
