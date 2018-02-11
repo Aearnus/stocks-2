@@ -49,6 +49,12 @@ function populateUser() {
             window.location.href = "/";
         } else {
             user = jsonResponse["data"];
+            // if the stock doesn't exist in the user
+            if (!(stock["name"] in user["ownedStocks"])) {
+                user["ownedStocks"][stock["name"]] = {};
+                user["ownedStocks"][stock["name"]]["name"] = stock["name"];
+                user["ownedStocks"][stock["name"]]["shares"] = 0;
+            }
             updateStage2();
         }
     });
