@@ -10,7 +10,7 @@ set :bind, "0.0.0.0"
 set :port, 25565
 set :public_folder, "public"
 
-set :server, 'webrick'
+#set :server, 'webrick'
 
 assert_dir "ids"
 assert_dir "stocks"
