@@ -106,7 +106,8 @@ end
 ############################################################
 def check_login_validity(uuid)
     puts "TESTING UUID #{uuid}"
-    if uuid.length != 36
+    # Allow single or double strength IDs
+    if (uuid.length != 36) && (uuid.length != 72)
         return false
     end
     if ($idCache.keys.include? uuid)

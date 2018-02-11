@@ -5,6 +5,7 @@ function init() {
 function getId() {
     getRequest("/newId", function (req) {
         i("yourId").innerHTML = JSON.parse(req.responseText)["id"];
+        i("getId").disabled = true;
     });
 }
 

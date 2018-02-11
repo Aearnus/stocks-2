@@ -27,6 +27,11 @@ $idCache = {}
 load_id_cache()
 
 ############################################################
+# Establish a list of people who are rate limited for new IDs
+############################################################
+$rateLimitedIPs = {}
+
+############################################################
 # GET /
 # Automatic redirect to homepage
 # GET params:
@@ -47,7 +52,18 @@ end
 #   {"id": "<user id>"}
 ############################################################
 get "/newId" do
-    userId = SecureRandom.uuid
+    # If the IP has created an ID before...
+    if $rateLimitedIPs.keys.include?(request.ip)
+        # ... And it was within the past hour...
+        timeSinceId = Time.now.to_i - $rateLimitedIPs[request.ip]
+        if timeSinceId < 3600
+            # ... then don't allow the ID to be created.
+            # Note: I'm not bothering with formatting because the website
+            # will handle it properly on its end.
+            return "{\"id\":\"This IP address (#{request.ip}) created an ID #{timeSinceId} seconds ago. Please wait #{3600 - timeSinceId} seconds to create another.\"}"
+        end
+    end
+    userId = "#{SecureRandom.uuid}#{SecureRandom.uuid}"
     defaultIdStats = {
         "id" => "#{userId}",
         "money" => 100r,
@@ -58,6 +74,11 @@ get "/newId" do
     # Write the ID to disk and to cache
     write_id(defaultIdStats, true)
     update_id_cache(defaultIdStats)
+
+    # Apply rate limiting
+    if !($rateLimitedIPs.keys.include? request.ip)
+        $rateLimitedIPs[request.ip] = Time.now.to_i
+    end
 
     return "{\"id\":\"#{userId}\"}"
 end
