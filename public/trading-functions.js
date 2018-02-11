@@ -128,6 +128,7 @@ function updateUserInfo() {
         } else {
             user = jsonResponse["data"];
             i("money").textContent = user["money"];
+            i("floatingMoney").textContent = user["money"];
             var totalValue = user["money"];
             for (var stockIndex in user["ownedStocks"]) {
                 var stockName = user["ownedStocks"][stockIndex]["name"];
