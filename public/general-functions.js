@@ -108,5 +108,5 @@ function stockHistoryToChange(stock) {
             totalValue += transaction["value"];
         }
     }
-    return (totalValue / buyAmount) - stock["averageValue"];
+    return ((totalValue / buyAmount) - stock["averageValue"]).toFixed(2);
 }
