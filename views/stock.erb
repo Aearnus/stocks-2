@@ -94,16 +94,21 @@
 				</div>
 				<div class="tabContents">
 					<div class="inputGroup">
-						<label for="sellStockPrice">Value per share:</label>
-						<input type="text" id="sellStockPrice" name="sharePrice">
+						<label for="sellPrice">Value per share:</label>
+						<input type="number" id="sellPrice" step="any" oninput="updateSellStock()">
 					</div>
 					<div class="inputGroup">
-						<label for="sellStockAmount">Amount to sell:</label>
-						<input type="text" id="sellStockAmount" name="shareAmount">
+						<label for="sellAmount">Amount to buy:</label>
+						<input type="number" id="sellAmount" oninput="updateSellStock()">
 					</div>
-
-					<button type="submit" id="sellSubmit" onclick="sellStock">
-						Create Sell Order
+					<div class="inputGroup">
+						The total price of this order is <span class="money" id="sellValue">0</span>.
+					</div>
+					<div class="inputGroup">
+						This order contains <span class="inputStatus" id="sellShares">0</span> shares.
+					</div>
+					<button type="submit" id="sellSubmit" onclick="sellStock()" disabled>
+						Create sell Order
 					</button>
 				</div>
 			</section>

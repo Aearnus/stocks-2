@@ -4,15 +4,35 @@ function init() {
     funnyName();
     update();
     createHistoryGraph(i("stockHistoryGraph"), stock["history"]);
-    // TODO: create document.user
+    i("buyPrice").addEventListener("keydown", function(e){submitBuyStock(e)});
+    i("buyAmount").addEventListener("keydown", function(e){submitBuyStock(e)});
+    i("sellPrice").addEventListener("keydown", function(e){submitSellStock(e)});
+    i("sellAmount").addEventListener("keydown", function(e){submitSellStock(e)});
 }
+
+
 function update() {
+    console.log("running update");
     updateStock();
     populateUser();
     i("buyPrice").value = "";
     i("buyAmount").value = "";
+    i("sellPrice").value = "";
+    i("sellAmount").value = "";
     updateBuyStock();
     updateSellStock();
+}
+function redownloadStockAndUpdate() {
+    getRequest("/stockinfo/" + stock["name"], function (req) {
+        var jsonResponse = JSON.parse(req.responseText);
+        if (jsonResponse["result"] == false) {
+            alert("There was an issue redownloading stock information! Error: " + jsonResponse["data"]["error"] + " You will be redirected back to the login page.");
+            window.location.href = "/";
+        } else {
+            stock = jsonResponse["data"];
+            update();
+        }
+    });
 }
 
 function populateUser() {
@@ -46,6 +66,7 @@ function updateStock() {
 }
 
 function submitBuyStock(e) {
+    console.log("submitBuyStock");
     if (e.keyCode == 13) {
         i("buySubmit").click();
     }
@@ -87,6 +108,7 @@ function buyStock() {
             "/buystock",
             function (req) {
                 console.log(req.responseText);
+                redownloadStockAndUpdate();
             },
             JSON.stringify({
                 stockName: stock["name"],
@@ -95,16 +117,41 @@ function buyStock() {
                 userId: localStorage.getItem("stocks2id")
             })
         );
-        updateStock();
     }
 }
 function submitSellStock(e) {
+    console.log("sellstock");
     if (e.keyCode == 13) {
         i("sellSubmit").click();
     }
 }
 function updateSellStock() {
-
+    var sellPrice = parseFloat(i("sellPrice").value);
+    var sellAmount = parseInt(i("sellAmount").value);
+    if (!(Number.isNaN(sellPrice) || Number.isNaN(sellAmount) || !("ownedStocks" in user))) {
+        if (sellPrice <= 0) {
+            i("sellPrice").value = 1;
+        }
+        if (sellAmount <= 0) {
+            i("sellAmount").value = 1;
+        }
+        var totalValue = sellPrice * sellAmount;
+        i("sellValue").textContent = totalValue;
+        i("sellValue").className = "money inputStatus";
+        i("sellShares").textContent = sellAmount + " out of " + user["ownedStocks"][stock["name"]]["shares"];
+        if (sellAmount > user["ownedStocks"][stock["name"]]["shares"]) {
+            i("sellShares").className = "inputStatus inputError";
+            i("sellSubmit").disabled = true;
+        } else {
+            i("sellShares").className = "inputStatus inputOk";
+            i("sellSubmit").disabled = false;
+        }
+    } else {
+        i("sellShares").textContent = "0 out of 0";
+        i("sellValue").textContent = "0";
+        i("sellValue").className = "money inputStatus inputError";
+        i("sellSubmit").disabled = true;
+    }
 }
 function sellStock() {
     if (!i("sellSubmit").disabled) {
@@ -112,16 +159,16 @@ function sellStock() {
             "/sellstock",
             function (req) {
                 console.log(req.responseText);
+                redownloadStockAndUpdate();
             },
             JSON.stringify({
                 stockName: stock["name"],
-                shareAmount: i("buyAmount").value,
-                sharePrice: i("buyPrice").value,
+                shareAmount: i("sellAmount").value,
+                sharePrice: i("sellPrice").value,
                 userId: localStorage.getItem("stocks2id")
             })
         );
     }
-    update();
 }
 
 function fillOrder(uuid, event) {
