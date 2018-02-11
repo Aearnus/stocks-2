@@ -44,7 +44,7 @@ function populateUser() {
             window.location.href = "/";
         } else {
             user = jsonResponse["data"];
-            i("floatingBox") = user["money"];
+            i("floatingMoney").textContent = user["money"];
         }
     });
 }
