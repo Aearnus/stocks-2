@@ -13,7 +13,6 @@ function init() {
 
 function update() {
     console.log("running update");
-    updateStock();
     populateUser();
     i("buyPrice").value = "";
     i("buyAmount").value = "";
@@ -21,6 +20,12 @@ function update() {
     i("sellAmount").value = "";
     updateBuyStock();
     updateSellStock();
+}
+function updateStage2() {
+    // called once user is populated
+    i("floatingMoney").textContent = user["money"];
+    i("floatingShares").textContent = user["ownedStocks"][stock["name"]]["shares"];
+    updateStock();
 }
 function redownloadStockAndUpdate() {
     getRequest("/stockinfo/" + stock["name"], function (req) {
@@ -44,7 +49,7 @@ function populateUser() {
             window.location.href = "/";
         } else {
             user = jsonResponse["data"];
-            i("floatingMoney").textContent = user["money"];
+            updateStage2();
         }
     });
 }
@@ -53,7 +58,9 @@ function updateStock() {
     i("stockName").textContent = stock["name"];
     i("stockDesc").textContent = stock["desc"];
     i("stockValue").textContent = stock["averageValue"];
-    i("valueChange").textContent = stockHistoryToChange(stock);
+    var change = stockHistoryToChange(stock);
+    i("valueChange").textContent = change;
+    i("valueChange").classList.add(change > 0 ? "positiveChange" : "negativeChange");
     emptyNode(i("sellOrders"));
     emptyNode(i("buyOrders"));
     for (var index in stock["history"]) {
@@ -67,7 +74,6 @@ function updateStock() {
 }
 
 function submitBuyStock(e) {
-    console.log("submitBuyStock");
     if (e.keyCode == 13) {
         i("buySubmit").click();
     }
@@ -98,12 +104,6 @@ function updateBuyStock() {
     }
 }
 function buyStock() {
-    console.log("sending " + JSON.stringify({
-        stockName: stock["name"],
-        shareAmount: i("buyAmount").value,
-        sharePrice: i("buyPrice").value,
-        userId: localStorage.getItem("stocks2id")
-    }));
     if (!i("buySubmit").disabled) {
         postRequest(
             "/buystock",
@@ -121,7 +121,6 @@ function buyStock() {
     }
 }
 function submitSellStock(e) {
-    console.log("sellstock");
     if (e.keyCode == 13) {
         i("sellSubmit").click();
     }
@@ -175,6 +174,7 @@ function sellStock() {
 function fillOrder(uuid, event) {
     postRequest("/fillorder", function (req) {
         console.log(req.responseText);
+        redownloadStockAndUpdate();
     }
     , JSON.stringify({stockName: stock["name"], userId: localStorage.getItem("stocks2id"), transactionId: uuid}));
 }
@@ -189,7 +189,14 @@ function createSellView(time, shares, shareValue, uuid) {
     template.querySelector(".transactionInfo").children[2].textContent = shareValue;
     template.querySelector(".transactionPrice").textContent = shares * shareValue;
     template.querySelector(".transactionBuy").innerHTML = "Fill Order<br>(Buy Shares)";
-    template.querySelector(".transactionBuy").onclick = function (e) { fillOrder(uuid, e); }
+    var isDisabled = (shareValue * shares) > user["money"];
+    if (isDisabled) {
+        template.querySelector(".transactionPrice").classList.add("inputError");
+        template.querySelector(".transactionBuy").disabled = true;
+    } else {
+        template.querySelector(".transactionBuy").onclick = function (e) { fillOrder(uuid, e); }
+    }
+
     return template;
 }
 
@@ -203,5 +210,12 @@ function createBuyView(time, shares, shareValue, uuid) {
     template.querySelector(".transactionPrice").textContent = shares * shareValue;
     template.querySelector(".transactionBuy").innerHTML = "Fill Order<br>(Sell Shares)";
     template.querySelector(".transactionBuy").onclick = function (e) { fillOrder(uuid, e); }
+    var isDisabled = shares > user["ownedStocks"][stock["name"]]["shares"];
+    if (isDisabled) {
+        template.querySelector(".transactionInfo").children[0].classList.add("inputError");
+        template.querySelector(".transactionBuy").disabled = true;
+    } else {
+        template.querySelector(".transactionBuy").onclick = function (e) { fillOrder(uuid, e); }
+    }
     return template;
 }
