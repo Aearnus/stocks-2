@@ -565,6 +565,7 @@ end
 #   criteria: How the stocks are sorted. Possible values:
 #       criteria=top: The top n stocks by value
 #       criteria=new: The newest n stocks
+#       criteria=random: A random selection of n stocks
 #   n: The amount of stocks to return. 1 <= n <= 100
 # Return value:
 #   On success:
@@ -599,6 +600,8 @@ get "/liststocks" do
         return data_return(true, $stockCache.values.sort_by { |stock| stock["averageValue"] }[-n .. -1].reverse.map{|stock| sanitize_stock(stock)})
     elsif criteria == "new"
         return data_return(true, $stockCache.values.sort_by { |stock| stock["time"] }[-n .. -1].reverse.map{|stock| sanitize_stock(stock)})
+    elsif criteria == "random"
+        return data_return(true, $stockCache.values.sample(n).map{|stock| sanitize_stock(stock)})
     else
         return data_return(false, {error: "Unknown criteria: #{criteria}", errorWith: "criteria"})
     end

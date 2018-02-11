@@ -89,6 +89,7 @@ function createLargeStockTicker(stockName, amountOwned, parentNode) {
 function populateStockList() {
     emptyNode(i("topStockList"));
     emptyNode(i("newStockList"));
+    emptyNode(i("randomStockList"));
     // first, populate the top stocks list
     getRequest("/liststocks?criteria=top&n=10", function (req) {
         var jsonResponse = JSON.parse(req.responseText);
@@ -112,6 +113,19 @@ function populateStockList() {
             for (var stockIndex in jsonResponse["data"]) {
                 var stock = jsonResponse["data"][stockIndex];
                 i("newStockList").appendChild(createSmallStockTicker(stock["name"], stock["averageValue"], stockHistoryToChange(stock)));
+            }
+        }
+    });
+    // finally, the random stocks list
+    getRequest("/liststocks?criteria=random&n=10", function (req) {
+        var jsonResponse = JSON.parse(req.responseText);
+        if (jsonResponse["result"] == false) {
+            alert("There was an issue getting the stock listings! Error: " + jsonResponse["data"]["error"] + " You will be redirected back to the login page.");
+            window.location.href = "/";
+        } else {
+            for (var stockIndex in jsonResponse["data"]) {
+                var stock = jsonResponse["data"][stockIndex];
+                i("randomStockList").appendChild(createSmallStockTicker(stock["name"], stock["averageValue"], stockHistoryToChange(stock)));
             }
         }
     });
