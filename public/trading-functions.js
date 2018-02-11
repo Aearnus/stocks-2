@@ -11,11 +11,8 @@ function init() {
     });
     update();
     i("stockSearch").addEventListener("keydown",function(e){if (e.keyCode == 13) { stockSearch(); }});
-    i("createStockName").value = "";
     i("createStockName").addEventListener("keydown", function(e){submitCreateStock(e)});
-    i("createStockDesc").value = "";
     i("createStockDesc").addEventListener("keydown", function(e){submitCreateStock(e)});
-    i("createStockAmount").value = "";
     i("createStockAmount").addEventListener("keydown", function(e){submitCreateStock(e)});
 }
 
@@ -23,6 +20,9 @@ function update() {
     stockValues = {};
     updateUserInfo();
     populateStockList();
+    i("createStockName").value = "";
+    i("createStockDesc").value = "";
+    i("createStockAmount").value = "";
 }
 
 function tryUpdateTotalValue() {

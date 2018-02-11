@@ -1,8 +1,31 @@
+var user = {}
+
 function init() {
     funnyName();
-    updateStock();
+    update();
     createHistoryGraph(i("stockHistoryGraph"), stock["history"]);
     // TODO: create document.user
+}
+function update() {
+    updateStock();
+    populateUser();
+    i("buyPrice").value = "";
+    i("buyAmount").value = "";
+    updateBuyStock();
+    updateSellStock();
+}
+
+function populateUser() {
+    getRequest("/idinfo/" + localStorage.getItem("stocks2id"), function (req) {
+        var jsonResponse = JSON.parse(req.responseText);
+        console.log(jsonResponse);
+        if (jsonResponse["result"] == false) {
+            alert("There was an issue getting the user information! Error: " + jsonResponse["data"]["error"] + " You will be redirected back to the login page.");
+            window.location.href = "/";
+        } else {
+            user = jsonResponse["data"];
+        }
+    });
 }
 
 function updateStock() {
@@ -10,6 +33,8 @@ function updateStock() {
     i("stockDesc").textContent = stock["desc"];
     i("stockValue").textContent = stock["averageValue"];
     i("valueChange").textContent = stockHistoryToChange(stock);
+    emptyNode(i("sellOrders"));
+    emptyNode(i("buyOrders"));
     for (var index in stock["history"]) {
         var trans = stock["history"][index];
         if (trans["transaction"] == "sell") {
@@ -20,20 +45,43 @@ function updateStock() {
     }
 }
 
+function submitBuyStock(e) {
+    if (e.keyCode == 13) {
+        i("buySubmit").click();
+    }
+}
 function updateBuyStock() {
-    if (i("buyPrice").value =< 0) {
-        i("buyPrice").value = 1;
-    }
-    if (i("buyAmount").value =< 0) {
-        i("buyAmount").value = 1;
-    }
-    var totalValue = i("buyPrice").value * i("buyAmount").value;
-    i("buyValue").value = totalValue;
-    if (totalValue > user["money"]) {
-
+    var buyPrice = parseInt(i("buyPrice").value);
+    var buyAmount = parseInt(i("buyAmount").value);
+    if (!(Number.isNaN(buyPrice) || Number.isNaN(buyAmount))) {
+        if (buyPrice <= 0) {
+            i("buyPrice").value = 1;
+        }
+        if (buyAmount <= 0) {
+            i("buyAmount").value = 1;
+        }
+        var totalValue = buyPrice * buyAmount;
+        i("buyValue").textContent = totalValue;
+        if (totalValue > user["money"]) {
+            i("buyValue").className = "money inputStatus inputError";
+            i("buySubmit").disabled = true;
+        } else {
+            i("buyValue").className = "money inputStatus inputOk";
+            i("buySubmit").disabled = false;
+        }
+    } else {
+        i("buyValue").textContent = "0";
+        i("buyValue").className = "money inputStatus inputError";
+        i("buySubmit").disabled = true;
     }
 }
 function buyStock() {
+    console.log("sending " + JSON.stringify({
+        stockName: stock["name"],
+        shareAmount: i("buyAmount").value,
+        sharePrice: i("buyPrice").value,
+        userId: localStorage.getItem("stocks2id")
+    }));
     if (!i("buySubmit").disabled) {
         postRequest(
             "/buystock",
@@ -47,7 +95,16 @@ function buyStock() {
                 userId: localStorage.getItem("stocks2id")
             })
         );
+        updateStock();
     }
+}
+function submitSellStock(e) {
+    if (e.keyCode == 13) {
+        i("sellSubmit").click();
+    }
+}
+function updateSellStock() {
+
 }
 function sellStock() {
     if (!i("sellSubmit").disabled) {
@@ -64,6 +121,7 @@ function sellStock() {
             })
         );
     }
+    update();
 }
 
 function fillOrder(uuid, event) {

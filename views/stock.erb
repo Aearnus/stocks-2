@@ -124,11 +124,11 @@
 				<div class="tabContents">
 					<div class="inputGroup">
 						<label for="buyPrice">Value per share:</label>
-						<input type="number" id="buyPrice" step="any">
+						<input type="number" id="buyPrice" step="any" oninput="updateBuyStock()">
 					</div>
 					<div class="inputGroup">
 						<label for="buyAmount">Amount to buy:</label>
-						<input type="number" id="buyAmount">
+						<input type="number" id="buyAmount" oninput="updateBuyStock()">
 					</div>
 					<div class="inputGroup">
 						The total price of this order is <span class="money inputStatus" id="buyValue">0</span>.
