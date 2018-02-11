@@ -1,9 +1,9 @@
 Things that still have to be done:
 
+* Add to the stock JSON object to allow partial sales
 * Manage your own business
 * Special stocks
 * Cancel button on stock orders
 * Worthless capitalist trash tab
 * HTTPS
-? Add to the stock JSON object to allow partial sales
 ? Add a username/password alongside the ID token system (use the usernames/passwords as a private key to encrypt the ID?)

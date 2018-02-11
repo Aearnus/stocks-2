@@ -46,7 +46,8 @@ stock:
             --SELL denotes that someone has created a sell order.
             --DONE denotes that the stock has changed hands
             "time": <unix timestamp>,
-            "amount": <shares transferred>,
+            "amount": <total shares to transfer>,
+            "amountDone": <shares transferred>,
             "value": <monetary value of 1 share>,
             "uuid": <special id of the transaction>,
             "userId": <internal identification of the seller. SHOULD BE SANITIZED>
@@ -54,7 +55,8 @@ stock:
         {
             "transaction": "buy" or "sell",
             "time": <unix timestamp>,
-            "amount": <shares transferred>,
+            "amount": <total shares to transfer>,
+            "amountDone": <shares transferred>,
             "value": <monetary value of 1 share>,
             "uuid": <special id of the transaction>,
             "userId": <internal identification of the seller. SHOULD BE SANITIZED>
