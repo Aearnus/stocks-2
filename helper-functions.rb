@@ -50,9 +50,9 @@ def load_stock_cache
         stock.chomp!
         next if stock.empty?
         stockObject = JSON.parse(File.read("stocks/#{stock.chomp}"))
-        stockObject["averageValue"] = stockObject["averageValue"].to_r.round(2)
+        stockObject["averageValue"] = stockObject["averageValue"].to_f
         stockObject["history"].each do |transaction|
-            transaction["value"] = transaction["value"].to_r.round(2)
+            transaction["value"] = transaction["value"].to_f
         end
         $stockCache[stock] = stockObject
     end
@@ -204,9 +204,9 @@ def sanitize_stock(stock)
     out["history"].each_with_index do |_, index|
         out["history"][index]["userId"] = ""
     end
-    out["averageValue"] = out["averageValue"].to_r.round(2).to_f
+    out["averageValue"] = out["averageValue"].to_f
     out["history"].each do |transaction|
-        transaction["value"] = transaction["value"].to_r.round(2).to_f
+        transaction["value"] = transaction["value"].to_f
     end
     return out
 end
@@ -221,7 +221,6 @@ end
 ############################################################
 def sanitize_user(user)
     out = Marshal.load(Marshal.dump(user))
-    out.money = out.money.to_r.round(2).to_f
     return out
 end
 

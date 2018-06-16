@@ -1,10 +1,13 @@
 function i(id) { return document.getElementById(id); }
 
 function getRequest(url, callback) {
+    console.log("Making GET request to " + url);
     var req = new XMLHttpRequest();
     req.open("GET", url);
     req.onreadystatechange = function () {
         if (req.readyState == XMLHttpRequest.DONE && req.status == 200) {
+            console.log("Got response from " + url + ":");
+            console.log(req);
             callback(req);
         } else if (req.readyState == XMLHttpRequest.DONE && req.status != 200) {
             alert("There was a problem contacting the server: request status " + req.status);

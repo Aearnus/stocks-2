@@ -46,11 +46,12 @@ class User
         # String
         :id,
         # Rational
-        :money
+        :money,
+        # TODO: createdStocks interface that isn't just a list
+        :createdStocks
     )
 
     attr_reader(
-        :createdStocks,
         :ownedStocks,
         :openOrders
     )
@@ -68,6 +69,7 @@ class User
             structure = JSON.parse(args[0])
             @id = structure["id"]
             @money = structure["money"]
+            @createdStocks = []
             @ownedStocks = UserOwnedStocks.new
             structure["ownedStocks"].each do |ownedStock|
                 @ownedStocks.modifyShareAmount(ownedStock[0], ownedStock[1]["shares"])
@@ -88,6 +90,6 @@ class User
     "ownedStocks": #{JSON.generate(@ownedStocks)},
     "openOrders": #{JSON.generate(@openOrders)}
 }
-        ~
+        ~.strip
     end
 end

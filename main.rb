@@ -146,7 +146,7 @@ post "/createstock" do
         params = JSON.parse(request.body.read)
     end
     return if !assert_params(params, "stockName", "stockDesc", "stockAmount", "userId")
-    shareCost = 100r
+    shareCost = 100
     stockName = params["stockName"].upcase;
     stockDesc = params["stockDesc"];
     stockAmount = params["stockAmount"].to_i;
@@ -180,7 +180,7 @@ post "/createstock" do
 
     user = $idCache[userId]
     #make sure the user has enough money
-    if (stockAmount * shareCost > user["money"])
+    if (stockAmount * shareCost > user.money)
         return data_return(false, {error: "You don't have enough money to buy #{stockAmount} shares! (required: $#{stockAmount * shareCost})", errorWith: "stockAmount"})
     end
     #finally, it's gucci - create the stock
@@ -245,7 +245,7 @@ post "/sellstock" do
     return if !assert_params(params, "stockName", "shareAmount", "sharePrice", "userId")
     stockName = params["stockName"].upcase;
     shareAmount = params["shareAmount"].to_i;
-    sharePrice = params["sharePrice"].to_r.round(2);
+    sharePrice = params["sharePrice"].to_f;
     userId = params["userId"];
     #make sure user exists
     if !check_login_validity(userId)
@@ -324,7 +324,7 @@ post "/buystock" do
     return if !assert_params(params, "stockName", "shareAmount", "sharePrice", "userId")
     stockName = params["stockName"].upcase;
     shareAmount = params["shareAmount"].to_i;
-    sharePrice = params["sharePrice"].to_r.round(2);
+    sharePrice = params["sharePrice"].to_f;
     userId = params["userId"];
     #make sure user exists
     if !check_login_validity(userId)
