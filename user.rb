@@ -8,12 +8,18 @@ require_relative "stockorder.rb"
 class UserOwnedStocks < Hash
     def changeShareAmount(name, shares)
         self[name] = shares
+        if shares == 0
+            self.delete name
+        end
     end
     def modifyShareAmount(name, shares)
         if self[name].nil?
             self[name] = shares
         else
             self[name] += shares
+        end
+        if self[name] == 0
+            self.delete name
         end
     end
     def getShareAmount(name)
@@ -42,13 +48,13 @@ class User
         # Rational
         :money
     )
-    
+
     attr_reader(
         :createdStocks,
         :ownedStocks,
         :openOrders
     )
-        
+
     # Completely new user
     def initialize
         @id = "#{SecureRandom.uuid}#{SecureRandom.uuid}"
@@ -57,7 +63,7 @@ class User
         @ownedStocks = UserOwnedStocks.new
         @openOrders = UserOpenOrders.new
     end
-    
+
     # Loaded user
     def initialize(pickled)
         structure = JSON.parse(pickled)
@@ -72,7 +78,7 @@ class User
             @openOrders.openOrder(order["name"], order["uuid"])
         end
     end
-    
+
     def pickle
         %Q~
         {
@@ -84,4 +90,3 @@ class User
         }
         ~
     end
-        

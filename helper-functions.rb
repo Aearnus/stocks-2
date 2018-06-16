@@ -1,4 +1,6 @@
-require 'fileutils'
+user.ownedStocksrequire 'fileutils'
+
+require_relative "user.rb"
 
 ############################################################
 # File assertion functions
@@ -64,13 +66,13 @@ def load_id_cache
     File.foreach("id-list") do |id|
         id.chomp!
         next if id.empty?
-        idObject = JSON.parse(File.read("ids/#{id.chomp}"))
-        idObject["money"] = idObject["money"].to_r.round(2)
+        idObject = User.new(File.read("ids/#{id.chomp}"))
+        #idObject.money = idObject["money"].to_r.round(2)
         $idCache[id] = idObject
     end
 end
 def update_id_cache(idObject)
-    $idCache[idObject["id"]] = idObject
+    $idCache[idObject.id] = idObject
 end
 
 ############################################################
@@ -89,11 +91,11 @@ end
 def write_id(user, writeIdList)
     if writeIdList
         File.open("id-list", "a") do |f|
-            f.puts "#{user["id"]}"
+            f.puts "#{user.id}"
         end
     end
-    File.open("ids/#{user["id"]}", "w") do |f|
-        f.write JSON.generate(user)
+    File.open("ids/#{user.id}", "w") do |f|
+        f.write user.pickle
     end
 end
 
@@ -219,7 +221,7 @@ end
 ############################################################
 def sanitize_user(user)
     out = Marshal.load(Marshal.dump(user))
-    out["money"] = out["money"].to_r.round(2).to_f
+    out.money = out.money.to_r.round(2).to_f
     return out
 end
 
@@ -237,29 +239,12 @@ def modify_user_stocks(user, stockName, stockChange)
     puts "MODIFY_USER_STOCKS"
     pp user
     originalUser = user
-    #if they don't already own any of this stock
-    if user["ownedStocks"][stockName].nil?
-        user["ownedStocks"][stockName] = {}
-        user["ownedStocks"][stockName]["name"] = stockName
-        user["ownedStocks"][stockName]["shares"] = 0
-        #make sure it doesn't try to take from a user with nothing
-        if stockChange < 0
-            return originalUser
-        end
-        #make the exchange
-        user["ownedStocks"][stockName]["shares"] += stockChange
+    #if they don't already own any of this stock and it would cause it to go negative
+    if (user.ownedStocks.getShareAmount(stockName) <= 0) && (stockChange < 0)
+        return originalUser
     else
-        #or, if they already own this stock
-        #make sure we're not taking more than the user has
-        if stockChange + user["ownedStocks"][stockName]["shares"] < 0
-            return originalUser
-        #if the user runs out of stocks, delete that stock from their inventory
-        elsif stockChange + user["ownedStocks"][stockName]["shares"] == 0
-            user["ownedStocks"].delete(stockName)
-            return user
-        end
-        #if it's good, go ahead and do it
-        user["ownedStocks"][stockName]["shares"] += stockChange
-    end
+    #if it's good, go ahead and do it
+    user.ownedStocks.modifyShareAmount(stockName, stockChange)
+
     return user
 end

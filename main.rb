@@ -5,6 +5,7 @@ require "json"
 require "pp"
 
 require_relative "helper-functions.rb"
+require_relative "user.rb"
 
 set :bind, "0.0.0.0"
 #set :port, 25565
@@ -63,14 +64,7 @@ get "/newId" do
             return "{\"id\":\"This IP address (#{request.ip}) created an ID #{timeSinceId} seconds ago. Please wait #{3600 - timeSinceId} seconds to create another.\"}"
         end
     end
-    userId = "#{SecureRandom.uuid}#{SecureRandom.uuid}"
-    defaultIdStats = {
-        "id" => "#{userId}",
-        "money" => 100r,
-        "createdStocks" => [],
-        "ownedStocks" => {},
-        "openOrders" => []
-    }
+    newUser = User.new
     # Write the ID to disk and to cache
     write_id(defaultIdStats, true)
     update_id_cache(defaultIdStats)
@@ -189,7 +183,7 @@ post "/createstock" do
     end
     #finally, it's gucci - create the stock
     #first, take the money from the user
-    user["money"] -= stockAmount * shareCost
+    user.money -= stockAmount * shareCost
     #then create the stock
     defaultStock = {
         "name" => stockName,
@@ -213,8 +207,8 @@ post "/createstock" do
     write_stock(defaultStock, true)
     update_stock_cache(defaultStock)
     #write the user's new stock portfolio, now containing this stock
-    user["createdStocks"] << stockName
-    user["ownedStocks"][stockName] = {"name" => stockName, "shares" => stockAmount}
+    user.createdStocks << stockName
+    user.ownedStocks.changeShareAmount(stockName, stockAmount)
     write_id(user, false)
     update_id_cache(user)
 
@@ -261,13 +255,13 @@ post "/sellstock" do
     end
     user = $idCache[userId]
     #make sure user has stock
-    if user["ownedStocks"][stockName].nil?
+    if user.ownedStocks.getShareAmount(stockName) == 0
         return data_return(false, {error: "This stock isn't in your portfolio!", errorWith: "stockName"})
     end
     #make sure user has enough of stock
-    pp user["ownedStocks"]
+    pp user.ownedStocks
     pp shareAmount
-    if user["ownedStocks"][stockName]["shares"] - shareAmount < 0
+    if user.ownedStocks.getShareAmount(stockName) - shareAmount < 0
         return data_return(false, {error: "You don't have enough of #{stockName}!", errorWith: "shareAmount"})
     end
     #make sure they don't try to sell negative stocks
@@ -341,7 +335,7 @@ post "/buystock" do
     user = $idCache[userId]
     #make sure user has enough money
     transactionPrice = shareAmount * sharePrice
-    if user["money"] - transactionPrice < 0
+    if user.money - transactionPrice < 0
         return data_return(false, {error: "You don't have enough money! You need $#{transactionPrice}.", errorWith: "stockAmount"})
     end
     #make sure they don't try to sell negative stocks
@@ -356,7 +350,7 @@ post "/buystock" do
     #if all this is good, actually post the buy order!
     stock = $stockCache[stockName]
     #take the money away from the user
-    user["money"] -= transactionPrice
+    user.money -= transactionPrice
     #add the transaction to the stock
     stock["history"] << {
         "transaction" => "buy",
@@ -427,8 +421,8 @@ post "/fillorder" do
         return data_return(false, {error: "This transaction no longer exists!", errorWith: "transactionId"})
     end
     # distinguish between the two types of transactions
-    buyerUser = []
-    sellerUser = []
+    buyerUser = nil
+    sellerUser = nil
 
     #if a sell transaction was already posted (shares were moved from the seller)
     #what needs to be done:
@@ -453,8 +447,8 @@ post "/fillorder" do
         #first, change the "sell" to "done"
         transaction["transaction"] = "done"
         #then move the money out of the buyer's and into the seller's account
-        sellerUser["money"] += transactionCost
-        buyerUser["money"] -= transactionCost
+        sellerUser.money += transactionCost
+        buyerUser.money -= transactionCost
         #move the stocks into the buyer's account
         #/sellstock alredy moved them out of the seller's account
         buyerUser = modify_user_stocks(buyerUser, stockName, transaction["amount"])
@@ -477,7 +471,7 @@ post "/fillorder" do
         transaction["transaction"] = "done"
         #then move the money into the seller's account
         #/buystock already moved money out of the buyer's account
-        sellerUser["money"] += transaction["amount"] * transaction["value"]
+        sellerUser.money += transaction["amount"] * transaction["value"]
         #move the shares into the buyer's account and out of the seller's account
         buyerUser = modify_user_stocks(buyerUser, stockName, transaction["amount"])
         sellerUser = modify_user_stocks(sellerUser, stockName, -transaction["amount"])
