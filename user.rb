@@ -81,13 +81,13 @@ class User
 
     def pickle
         %Q~
-        {
-            "id": #{@id},
-            "money": #{@money},
-            "createdStocks": #{JSON.generate(@createdStocks)},
-            "ownedStocks": #{JSON.generate(@ownedStocks)},
-            "openOrders": #{JSON.generate(@openOrders)}
-        }
+{
+    "id": "#{@id}",
+    "money": #{@money},
+    "createdStocks": #{JSON.generate(@createdStocks)},
+    "ownedStocks": #{JSON.generate(@ownedStocks)},
+    "openOrders": #{JSON.generate(@openOrders)}
+}
         ~
     end
 end
