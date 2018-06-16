@@ -2,7 +2,7 @@ require "json"
 require "securerandom"
 require "set"
 
-require_relative "stockorder.rb"
+require_relative "stock_order.rb"
 
 # https://github.com/Aearnus/stocks-2/blob/e4ae65a5240a7acf82a6181a4df1a02f5d3362ec/json-structure-docs#L8
 class UserOwnedStocks < Hash
@@ -67,8 +67,8 @@ class User
     # Loaded user
     def initialize(pickled)
         structure = JSON.parse(pickled)
-        @id = structured["id"]
-        @money = structured["money"]
+        @id = structure["id"]
+        @money = structure["money"]
         @ownedStocks = UserOwnedStocks.new
         structure["ownedStocks"].each do |ownedStock|
             @ownedStocks.modifyShareAmount(ownedStock[0], ownedStock[1]["shares"])
@@ -90,3 +90,4 @@ class User
         }
         ~
     end
+end

@@ -1,4 +1,4 @@
-user.ownedStocksrequire 'fileutils'
+require 'fileutils'
 
 require_relative "user.rb"
 
@@ -242,7 +242,7 @@ def modify_user_stocks(user, stockName, stockChange)
     #if they don't already own any of this stock and it would cause it to go negative
     if (user.ownedStocks.getShareAmount(stockName) <= 0) && (stockChange < 0)
         return originalUser
-    else
+    end
     #if it's good, go ahead and do it
     user.ownedStocks.modifyShareAmount(stockName, stockChange)
 
