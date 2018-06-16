@@ -55,27 +55,27 @@ class User
         :openOrders
     )
 
-    # Completely new user
-    def initialize
-        @id = "#{SecureRandom.uuid}#{SecureRandom.uuid}"
-        @money = 100
-        @createdStocks = []
-        @ownedStocks = UserOwnedStocks.new
-        @openOrders = UserOpenOrders.new
-    end
-
-    # Loaded user
-    def initialize(pickled)
-        structure = JSON.parse(pickled)
-        @id = structure["id"]
-        @money = structure["money"]
-        @ownedStocks = UserOwnedStocks.new
-        structure["ownedStocks"].each do |ownedStock|
-            @ownedStocks.modifyShareAmount(ownedStock[0], ownedStock[1]["shares"])
-        end
-        @openOrders = UserOpenOrders.new
-        structure["openOrders"].each do |order|
-            @openOrders.openOrder(order["name"], order["uuid"])
+    def initialize(*args)
+        if args.length == 0
+            # Completely new user
+            @id = "#{SecureRandom.uuid}#{SecureRandom.uuid}"
+            @money = 100
+            @createdStocks = []
+            @ownedStocks = UserOwnedStocks.new
+            @openOrders = UserOpenOrders.new
+        else
+            # Loaded user
+            structure = JSON.parse(args[0])
+            @id = structure["id"]
+            @money = structure["money"]
+            @ownedStocks = UserOwnedStocks.new
+            structure["ownedStocks"].each do |ownedStock|
+                @ownedStocks.modifyShareAmount(ownedStock[0], ownedStock[1]["shares"])
+            end
+            @openOrders = UserOpenOrders.new
+            structure["openOrders"].each do |order|
+                @openOrders.openOrder(order["name"], order["uuid"])
+            end
         end
     end
 

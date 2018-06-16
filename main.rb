@@ -68,15 +68,15 @@ get "/newId" do
     end
     newUser = User.new
     # Write the ID to disk and to cache
-    write_id(defaultIdStats, true)
-    update_id_cache(defaultIdStats)
+    write_id(newUser, true)
+    update_id_cache(newUser)
 
     # Apply rate limiting
     if !($rateLimitedIPs.keys.include? request.ip)
         $rateLimitedIPs[request.ip] = Time.now.to_i
     end
 
-    return "{\"id\":\"#{userId}\"}"
+    return "{\"id\":\"#{newUser.id}\"}"
 end
 
 ############################################################
