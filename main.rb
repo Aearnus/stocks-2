@@ -9,6 +9,21 @@ require "pp"
 require_relative "helper-functions.rb"
 require_relative "user.rb"
 
+# Provide a `./main.rb clean` command to reset the directories
+# USE WITH CAUTION
+if ARGV[0] == "clean"
+    def run(cmd)
+        puts cmd
+        puts `#{cmd}`
+    end
+    puts "Cleaning directory..."
+    run "rm id-list"
+    run "rm stock-list"
+    run "rm -r ids/"
+    run "rm -r stocks/"
+    exit
+end
+
 set :bind, "0.0.0.0"
 #set :port, 25565
 set :public_folder, "public"

@@ -69,10 +69,10 @@ class User
             structure = JSON.parse(args[0])
             @id = structure["id"]
             @money = structure["money"]
-            @createdStocks = []
+            @createdStocks = structure["createdStocks"]
             @ownedStocks = UserOwnedStocks.new
             structure["ownedStocks"].each do |ownedStock|
-                @ownedStocks.modifyShareAmount(ownedStock[0], ownedStock[1]["shares"])
+                @ownedStocks.changeShareAmount(ownedStock[0], ownedStock[1])
             end
             @openOrders = UserOpenOrders.new
             structure["openOrders"].each do |order|

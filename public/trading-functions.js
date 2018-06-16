@@ -50,6 +50,7 @@ function createLargeStockTicker(stockName, amountOwned, parentNode) {
     // NOTE: This has 1 side effect
     // it modifies document.stockValue
     console.log("Creating large stock ticker for stock " + stockName);
+    console.trace();
     // default values for the ticker, then the ticker itself
     var stockChange = 100;
     var stockValue = 100;
@@ -135,7 +136,7 @@ function updateUserInfo() {
     emptyNode(i("createdStockList"));
     getRequest("/idinfo/" + localStorage.getItem("stocks2id"), function (req) {
         var jsonResponse = JSON.parse(req.responseText);
-        console.log(jsonResponse);
+        console.log("User info before JSON parse: " + req.responseText);
         if (jsonResponse["result"] == false) {
             alert("There was an issue getting the user information! Error: " + jsonResponse["data"]["error"] + " You will be redirected back to the login page.");
             window.location.href = "/";
@@ -145,8 +146,8 @@ function updateUserInfo() {
             i("floatingMoney").textContent = user["money"];
             var totalValue = user["money"];
             for (var stockIndex in user["ownedStocks"]) {
-                var stockName = user["ownedStocks"][stockIndex]["name"];
-                var amountOwned = user["ownedStocks"][stockIndex]["shares"];
+                var stockName = stockIndex;
+                var amountOwned = user["ownedStocks"][stockIndex];
                 createLargeStockTicker(stockName, amountOwned, i("ownedStockList"));
             }
             for (var stockIndex in user["createdStocks"]) {
