@@ -573,7 +573,7 @@ get "/idinfo/*" do |id|
     if !check_login_validity(id)
         return data_return(false, {error: "Invalid user ID!", errorWith: "userId"})
     else
-        return data_return(true, sanitize_user($idCache[id]))
+        return data_return(true, JSON.parse(sanitize_user($idCache[id]).pickle))
     end
 end
 
