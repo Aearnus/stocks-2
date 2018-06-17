@@ -24,7 +24,7 @@ function update() {
 function updateStage2() {
     // called once user is populated
     i("floatingMoney").textContent = user["money"];
-    i("floatingShares").textContent = user["ownedStocks"][stock["name"]]["shares"];
+    i("floatingShares").textContent = user["ownedStocks"][stock["name"]];
     updateStock();
 }
 function redownloadStockAndUpdate() {
@@ -51,9 +51,7 @@ function populateUser() {
             user = jsonResponse["data"];
             // if the stock doesn't exist in the user
             if (!(stock["name"] in user["ownedStocks"])) {
-                user["ownedStocks"][stock["name"]] = {};
-                user["ownedStocks"][stock["name"]]["name"] = stock["name"];
-                user["ownedStocks"][stock["name"]]["shares"] = 0;
+                user["ownedStocks"][stock["name"]] = 0;
             }
             updateStage2();
         }
@@ -144,8 +142,8 @@ function updateSellStock() {
         var totalValue = sellPrice * sellAmount;
         i("sellValue").textContent = totalValue;
         i("sellValue").className = "money inputStatus";
-        i("sellShares").textContent = sellAmount + " out of " + user["ownedStocks"][stock["name"]]["shares"];
-        if (sellAmount > user["ownedStocks"][stock["name"]]["shares"]) {
+        i("sellShares").textContent = sellAmount + " out of " + user["ownedStocks"][stock["name"]];
+        if (sellAmount > user["ownedStocks"][stock["name"]]) {
             i("sellShares").className = "inputStatus inputError";
             i("sellSubmit").disabled = true;
         } else {
@@ -216,7 +214,7 @@ function createBuyView(time, shares, shareValue, uuid) {
     template.querySelector(".transactionPrice").textContent = shares * shareValue;
     template.querySelector(".transactionBuy").innerHTML = "Fill Order<br>(Sell Shares)";
     template.querySelector(".transactionBuy").onclick = function (e) { fillOrder(uuid, e); }
-    var isDisabled = shares > user["ownedStocks"][stock["name"]]["shares"];
+    var isDisabled = shares > user["ownedStocks"][stock["name"]];
     if (isDisabled) {
         template.querySelector(".transactionInfo").children[0].classList.add("inputError");
         template.querySelector(".transactionBuy").disabled = true;
