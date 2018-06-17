@@ -8,6 +8,7 @@ require "pp"
 
 require_relative "helper-functions.rb"
 require_relative "user.rb"
+require_relative "stock.rb"
 
 # Provide a `./main.rb clean` command to reset the directories
 # USE WITH CAUTION
@@ -202,30 +203,13 @@ post "/createstock" do
     #first, take the money from the user
     user.money -= stockAmount * shareCost
     #then create the stock
-    defaultStock = {
-        "name" => stockName,
-        "desc" => stockDesc,
-        "time" => Time.now.to_i,
-        "shares" => stockAmount,
-        "createdBy" => userId,
-        "history" => [
-            {
-                "transaction" => "done",
-                "time" => Time.now.to_i,
-                "amount" => stockAmount,
-                "value" => shareCost,
-                "uuid" => SecureRandom.uuid,
-                "userId" => userId
-            }
-        ],
-        "averageValue" => shareCost
-    }
+    stock = Stock.new(stockName, stockDesc, stockAmount, userId)
     #write the stock to disk and to cache
-    write_stock(defaultStock, true)
-    update_stock_cache(defaultStock)
+    write_stock(stock, true)
+    update_stock_cache(stock)
     #write the user's new stock portfolio, now containing this stock
     user.createdStocks << stockName
-    user.ownedStocks.changeShareAmount(stockName, stockAmount)
+    user.ownedStocks.change_share_amount(stockName, stockAmount)
     write_id(user, false)
     update_id_cache(user)
 
@@ -272,13 +256,13 @@ post "/sellstock" do
     end
     user = $idCache[userId]
     #make sure user has stock
-    if user.ownedStocks.getShareAmount(stockName) == 0
+    if user.ownedStocks.get_share_amount(stockName) == 0
         return data_return(false, {error: "This stock isn't in your portfolio!", errorWith: "stockName"})
     end
     #make sure user has enough of stock
     pp user.ownedStocks
     pp shareAmount
-    if user.ownedStocks.getShareAmount(stockName) - shareAmount < 0
+    if user.ownedStocks.get_share_amount(stockName) - shareAmount < 0
         return data_return(false, {error: "You don't have enough of #{stockName}!", errorWith: "shareAmount"})
     end
     #make sure they don't try to sell negative stocks
@@ -293,16 +277,9 @@ post "/sellstock" do
     #if all this is good, actually sell the stock!
     stock = $stockCache[stockName]
     #take the stock away from the user
-    user = modify_user_stocks(user, stockName, -shareAmount)
+    user.modify_share_amount(stockName, -shares)
     #add the transaction to the stock
-    stock["history"] << {
-        "transaction" => "sell",
-        "time" => Time.now.to_i,
-        "amount" => shareAmount,
-        "value" => sharePrice,
-        "uuid" => SecureRandom.uuid,
-        "userId" => userId
-    }
+    stock.new_transaction(Transaction::SELL, shareAmount, sharePrice, userId)
     #finally, apply the changes to cache and disk
     update_stock_cache(stock)
     update_id_cache(user)
@@ -369,14 +346,7 @@ post "/buystock" do
     #take the money away from the user
     user.money -= transactionPrice
     #add the transaction to the stock
-    stock["history"] << {
-        "transaction" => "buy",
-        "time" => Time.now.to_i,
-        "amount" => shareAmount,
-        "value" => sharePrice,
-        "uuid" => SecureRandom.uuid,
-        "userId" => userId
-    }
+    stock.new_transaction(Transaction::BUY, shareAmount, sharePrice, userId)
     #finally, apply the changes to cache and disk
     update_stock_cache(stock)
     update_id_cache(user)
@@ -428,7 +398,7 @@ post "/fillorder" do
     end
     stock = $stockCache[stockName]
     #make sure transaction exists, and if so, save it
-    transaction = get_transaction(stockName, transactionId)
+    transaction = stock.get_transaction transactionId
     #if the transaction didn't exist
     if transaction.nil?
         return data_return(false, {error: "This transaction does not exist!", errorWith: "transactionId"})
@@ -446,59 +416,56 @@ post "/fillorder" do
     # money moved from the buyer (w/ check)
     # shares moved to the buyer
     # money moved to the seller
-    if transaction["transaction"] == "sell"
+    if transaction.transaction == :sell
         buyerUser = $idCache[userId]
-        sellerUser = $idCache[transaction["userId"]]
+        sellerUser = $idCache[transaction.userId]
         pp transaction
         pp sellerUser
         pp buyerUser
         #make sure the buyer has enough money
-        transactionCost = transaction["amount"] * transaction["value"]
-        puts "TRANSACTION COST: #{transactionCost}, BUYER MONEY: #{buyerUser["money"]}"
-        if (transactionCost > buyerUser["money"])
+        transactionCost = transaction.amount * transaction.value
+        puts "TRANSACTION COST: #{transactionCost}, BUYER MONEY: #{buyerUser.money}"
+        if (transactionCost > buyerUser.money)
             puts "RETURNING FALSE"
-            return data_return(false, {error: "You don't have enough money to buy #{transaction["amount"]} shares! (required: $#{transactionCost})", errorWith: "stockAmount"})
+            return data_return(false, {error: "You don't have enough money to buy #{transaction.amount} shares! (required: $#{transactionCost})", errorWith: "stockAmount"})
         end
 
         #everything is good, let's commit the transaction
         #first, change the "sell" to "done"
-        transaction["transaction"] = "done"
+        transaction.transaction = :done
         #then move the money out of the buyer's and into the seller's account
         sellerUser.money += transactionCost
         buyerUser.money -= transactionCost
         #move the stocks into the buyer's account
         #/sellstock alredy moved them out of the seller's account
-        buyerUser = modify_user_stocks(buyerUser, stockName, transaction["amount"])
+        buyerUser = modify_user_stocks(buyerUser, stockName, transaction.amount)
 
     #if a buy transaction was already posted (money was moved from the buyer)
     #what needs to be done:
     # shares moved from the seller (w/ check)
     # money moved to the seller
     # shares moved to the buyer
-    elsif transaction["transaction"] == "buy"
-        buyerUser = $idCache[transaction["userId"]]
+elsif transaction.transaction == :buy
+        buyerUser = $idCache[transaction.userId]
         sellerUser = $idCache[userId]
         #make sure the seller has enough shares to fill the buy order
-        if (transaction["amount"] > sellerUser["ownedStocks"][stockName]["shares"])
-            return data_return(false, {error: "You don't have enough shares to sell #{transaction["amount"]} shares!", errorWith: "stockAmount"})
+        if (transaction.amount > sellerUser.ownedStocks[stockName].shares)
+            return data_return(false, {error: "You don't have enough shares to sell #{transaction.amount} shares!", errorWith: "stockAmount"})
         end
 
         #everything is good, let's commit the transaction
         #first, change the "buy" to "done"
-        transaction["transaction"] = "done"
+        transaction.transaction = :done
         #then move the money into the seller's account
         #/buystock already moved money out of the buyer's account
-        sellerUser.money += transaction["amount"] * transaction["value"]
+        sellerUser.money += transaction.amount * transaction.value
         #move the shares into the buyer's account and out of the seller's account
-        buyerUser = modify_user_stocks(buyerUser, stockName, transaction["amount"])
-        sellerUser = modify_user_stocks(sellerUser, stockName, -transaction["amount"])
+        buyerUser = modify_user_stocks(buyerUser, stockName, transaction.amount)
+        sellerUser = modify_user_stocks(sellerUser, stockName, -transaction.amount)
     end
 
-    #update stock average value
-    stock["averageValue"] = get_stock_value(stock)
-
     #touch the time
-    transaction["time"] = Time.now.to_i
+    transaction.time = Time.now.to_i
 
     #finally, update the caches and write to disk
     #this happens regardless of who buys and who sells
@@ -525,7 +492,7 @@ end
 ############################################################
 get "/stock/*" do |stockName|
     if check_if_stock_exists(stockName)
-        erb :stock, :locals => {:stockObject => JSON.generate(sanitize_stock($stockCache[stockName]))}
+        erb :stock, :locals => {:stockObject => $stockCache[stockName].sanitary_pickle}
     else
         erb :'stock-fail', :locals => {:stockName => stockName}
     end
@@ -558,7 +525,7 @@ get "/stockinfo/*" do |stockName|
     if !check_if_stock_exists(stockName)
         return data_return(false, {error: "Invalid stock name!", errorWith: "stockName"})
     else
-        return data_return(true, sanitize_stock($stockCache[stockName]))
+        return data_return(true, $stockCache[stockName].sanitary_pickle)
     end
 end
 
@@ -631,11 +598,11 @@ get "/liststocks" do
         n = $stockCache.length
     end
     if criteria == "top"
-        return data_return(true, $stockCache.values.sort_by { |stock| stock["averageValue"] }[-n .. -1].reverse.map{|stock| sanitize_stock(stock)})
+        return data_return(true, $stockCache.values.sort_by { |stock| stock.averageValue }[-n .. -1].reverse.map{|stock| stock.sanitize})
     elsif criteria == "new"
-        return data_return(true, $stockCache.values.sort_by { |stock| stock["time"] }[-n .. -1].reverse.map{|stock| sanitize_stock(stock)})
+        return data_return(true, $stockCache.values.sort_by { |stock| stock.time }[-n .. -1].reverse.map{|stock| stock.sanitize})
     elsif criteria == "random"
-        return data_return(true, $stockCache.values.sample(n).map{|stock| sanitize_stock(stock)})
+        return data_return(true, $stockCache.values.sample(n).map{|stock| stock.sanitize})
     else
         return data_return(false, {error: "Unknown criteria: #{criteria}", errorWith: "criteria"})
     end

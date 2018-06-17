@@ -1,6 +1,7 @@
 require 'fileutils'
 
 require_relative "user.rb"
+require_relative "stock.rb"
 
 ############################################################
 # File assertion functions
@@ -49,16 +50,12 @@ def load_stock_cache
     File.foreach("stock-list") do |stock|
         stock.chomp!
         next if stock.empty?
-        stockObject = JSON.parse(File.read("stocks/#{stock.chomp}"))
-        stockObject["averageValue"] = stockObject["averageValue"].to_f
-        stockObject["history"].each do |transaction|
-            transaction["value"] = transaction["value"].to_f
-        end
+        stockObject = Stock.new(File.read("stocks/#{stock.chomp}"))
         $stockCache[stock] = stockObject
     end
 end
 def update_stock_cache(stockObject)
-    $stockCache[stockObject["name"]] = stockObject
+    $stockCache[stockObject.name] = stockObject
 end
 
 def load_id_cache
@@ -81,10 +78,10 @@ end
 def write_stock(stock, writeStockList)
     if writeStockList
         File.open("stock-list", "a") do |f|
-            f.puts "#{stock["name"]}"
+            f.puts "#{stock.name}"
         end
     end
-    File.open("stocks/#{stock["name"]}", "w") do |f|
+    File.open("stocks/#{stock.name}", "w") do |f|
         f.write JSON.generate(stock)
     end
 end
@@ -141,77 +138,6 @@ def check_if_stock_exists(stock)
 end
 
 ############################################################
-# get_transaction(stockName, uuid)
-# Arguments:
-#   stockName: the name of the stock to get the transaction of
-#   uuid: the uuid of the desired transaction
-# Return value:
-#   On success:
-#       {Transaction object}
-#   On failure:
-#       nil
-############################################################
-def get_transaction(stockName, uuid)
-    $stockCache[stockName]["history"].each do |currentTransaction|
-        if currentTransaction["uuid"] == uuid
-            return currentTransaction
-        end
-    end
-    return nil
-end
-
-############################################################
-# get_stock_value(stockObject, transactions)
-# Arguments:
-#   stockObject (object, parsed from stock json): stock to find the average value of
-#   transactions (integer): how many of the most recent transactions to average
-# Return value:
-#   Number -- the average value of the stock
-############################################################
-def get_stock_value(stockIn, transactions=25)
-    history = stockIn["history"].select{|t| t["transaction"] == "done"}
-    if transactions > history.length
-        transactions = history.length
-    end
-    validTransactions = history[-transactions .. -1]
-    totalValue = 0
-    validTransactions.each do |t|
-        totalValue += t["value"]
-    end
-    return totalValue / transactions
-end
-
-############################################################
-# sanitize_stock(stock)
-# Removes sensitive information from the stock object
-# Also, convert the values to their proper return values
-# Also, only take 6 of the stock transactions at random -- but keep all the "done"s
-# Also, drop all but the 100 newest done transactions
-# Arguments:
-#   stock: the stock object to sanitize
-# Return value:
-#   A stock object, minus transaction userId, or stock createdBy
-############################################################
-def sanitize_stock(stock)
-    #deep copy the object
-    out = Marshal.load(Marshal.dump(stock))
-    out["createdBy"] = ""
-    buys = out["history"].select{|t| t["transaction"] == "buy"}.sample(6)
-    sells = out["history"].select{|t| t["transaction"] == "sell"}.sample(6)
-    dones = out["history"].select{|t| t["transaction"] == "done"}
-    dones = dones.sort_by{|t| -t["time"]}[0..100].reverse
-    out["history"] = ([] << buys << sells << dones).flatten
-    out["history"].each_with_index do |_, index|
-        out["history"][index]["userId"] = ""
-    end
-    out["averageValue"] = out["averageValue"].to_f
-    out["history"].each do |transaction|
-        transaction["value"] = transaction["value"].to_f
-    end
-    return out
-end
-
-############################################################
 # sanitize_user(user)
 # Convert the values to their proper return values (rational -> float)
 # Arguments:
@@ -239,11 +165,11 @@ def modify_user_stocks(user, stockName, stockChange)
     pp user
     originalUser = user
     #if they don't already own any of this stock and it would cause it to go negative
-    if (user.ownedStocks.getShareAmount(stockName) <= 0) && (stockChange < 0)
+    if (user.ownedStocks.get_share_amount(stockName) <= 0) && (stockChange < 0)
         return originalUser
     end
     #if it's good, go ahead and do it
-    user.ownedStocks.modifyShareAmount(stockName, stockChange)
+    user.ownedStocks.modify_share_amount(stockName, stockChange)
 
     return user
 end

@@ -6,13 +6,13 @@ require_relative "stock_order.rb"
 
 # https://github.com/Aearnus/stocks-2/blob/e4ae65a5240a7acf82a6181a4df1a02f5d3362ec/json-structure-docs#L8
 class UserOwnedStocks < Hash
-    def changeShareAmount(name, shares)
+    def change_share_amount(name, shares)
         self[name] = shares
         if shares == 0
             self.delete name
         end
     end
-    def modifyShareAmount(name, shares)
+    def modify_share_amount(name, shares)
         if self[name].nil?
             self[name] = shares
         else
@@ -22,7 +22,7 @@ class UserOwnedStocks < Hash
             self.delete name
         end
     end
-    def getShareAmount(name)
+    def get_share_amount(name)
         out = self[name]
         if out.nil?
             0
@@ -34,7 +34,7 @@ end
 
 # https://github.com/Aearnus/stocks-2/blob/e4ae65a5240a7acf82a6181a4df1a02f5d3362ec/json-structure-docs#L18
 class UserOpenOrders < Array
-    def openOrder(name, id)
+    def open_order(name, id)
         self << {"name" => name, "uuid" => id}
     end
 end
@@ -72,11 +72,11 @@ class User
             @createdStocks = structure["createdStocks"]
             @ownedStocks = UserOwnedStocks.new
             structure["ownedStocks"].each do |ownedStock|
-                @ownedStocks.changeShareAmount(ownedStock[0], ownedStock[1])
+                @ownedStocks.change_share_amount(ownedStock[0], ownedStock[1])
             end
             @openOrders = UserOpenOrders.new
             structure["openOrders"].each do |order|
-                @openOrders.openOrder(order["name"], order["uuid"])
+                @openOrders.open_order(order["name"], order["uuid"])
             end
         end
     end

@@ -105,10 +105,7 @@ class Stock
     def sanitize
         deepCopy = Marshal.load(Marshal.dump(self))
         deepCopy.createdBy = ""
-        deepCopy.history = ([]
-            << deepCopy.history.select{|t| t.transaction == :buy}.sample(6)
-            << deepCopy.history.select{|t| t.transaction == :sell}.sample(6)
-            << deepCopy.history.select{|t| t.transaction == :done}.sort_by{|t| -t.time}[0..100].reverse).flatten
+        deepCopy.history = ([] << deepCopy.history.select{|t| t.transaction == :buy}.sample(6) << deepCopy.history.select{|t| t.transaction == :sell}.sample(6) << deepCopy.history.select{|t| t.transaction == :done}.sort_by{|t| -t.time}[0..100].reverse).flatten
         deepCopy.history.map! do |t|
             t.userId = ""
         end
@@ -117,10 +114,7 @@ class Stock
 
     def sanitize!
         @createdBy = ""
-        @history = ([]
-            << @history.select{|t| t.transaction == :buy}.sample(6)
-            << @history.select{|t| t.transaction == :sell}.sample(6)
-            << @history.select{|t| t.transaction == :done}.sort_by{|t| -t.time}[0..100].reverse).flatten
+        @history = ([] << @history.select{|t| t.transaction == :buy}.sample(6) << @history.select{|t| t.transaction == :sell}.sample(6) << @history.select{|t| t.transaction == :done}.sort_by{|t| -t.time}[0..100].reverse).flatten
         @history.map! do |t|
             t.userId = ""
         end
@@ -128,10 +122,7 @@ class Stock
 
     def sanitary_pickle
         historyCopy = Marshal.load(Marshal.dump(@history))
-        historyCopy = ([]
-            << historyCopy.select{|t| t.transaction == :buy}.sample(6)
-            << historyCopy.select{|t| t.transaction == :sell}.sample(6)
-            << historyCopy.select{|t| t.transaction == :done}.sort_by{|t| -t.time}[0..100].reverse).flatten
+        historyCopy = ([] << historyCopy.select{|t| t.transaction == :buy}.sample(6) << historyCopy.select{|t| t.transaction == :sell}.sample(6) << historyCopy.select{|t| t.transaction == :done}.sort_by{|t| -t.time}[0..100].reverse).flatten
         historyCopy.map! do |t|
             t.userId = ""
         end
@@ -158,7 +149,7 @@ class Stock
         return totalValue / transactions
     end
 
-    def new_transaction(type, amount, value, userId, time = nil, amountDone: nil, uuid: nil)
+    def new_transaction(type, amount, value, userId, time: nil, amountDone: nil, uuid: nil)
         @history << Transaction.new(type, amount, value, userId)
         if !time.nil?
             @history[-1].time = time
@@ -169,6 +160,26 @@ class Stock
         if !uuid.nil?
             @history[-1].uuid = uuid
         end
+    end
+
+    ############################################################
+    # get_transaction(stockName, uuid)
+    # Arguments:
+    #   stockName: the name of the stock to get the transaction of
+    #   uuid: the uuid of the desired transaction
+    # Return value:
+    #   On success:
+    #       {Transaction object}
+    #   On failure:
+    #       nil
+    ############################################################
+    def get_transaction(uuid)
+        @history.each do |currentTransaction|
+            if currentTransaction.uuid == uuid
+                return currentTransaction
+            end
+        end
+        return nil
     end
 
     def initialize(*args)
