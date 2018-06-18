@@ -39,6 +39,9 @@ end
 def data_return(res, data)
     "{\"result\": #{res}, \"data\": #{JSON.generate(data)}}"
 end
+def preformatted_data_return(res, data)
+    "{\"result\": #{res}, \"data\": #{data}}"
+end
 
 ############################################################
 # Cache loading functions
@@ -82,7 +85,7 @@ def write_stock(stock, writeStockList)
         end
     end
     File.open("stocks/#{stock.name}", "w") do |f|
-        f.write JSON.generate(stock)
+        f.write stock.pickle
     end
 end
 def write_id(user, writeIdList)

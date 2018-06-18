@@ -60,7 +60,7 @@ class User
         if args.length == 0
             # Completely new user
             @id = "#{SecureRandom.uuid}#{SecureRandom.uuid}"
-            @money = 100
+            @money = 10000000000000
             @createdStocks = []
             @ownedStocks = UserOwnedStocks.new
             @openOrders = UserOpenOrders.new
@@ -82,14 +82,12 @@ class User
     end
 
     def pickle
-        %Q~
-{
-    "id": "#{@id}",
-    "money": #{@money},
-    "createdStocks": #{JSON.generate(@createdStocks)},
-    "ownedStocks": #{JSON.generate(@ownedStocks)},
-    "openOrders": #{JSON.generate(@openOrders)}
-}
-        ~.strip
+        JSON.generate({
+            id: "#{@id}",
+            money: @money,
+            createdStocks: @createdStocks,
+            ownedStocks: @ownedStocks,
+            openOrders: @openOrders
+        })
     end
 end

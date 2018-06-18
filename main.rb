@@ -525,7 +525,7 @@ get "/stockinfo/*" do |stockName|
     if !check_if_stock_exists(stockName)
         return data_return(false, {error: "Invalid stock name!", errorWith: "stockName"})
     else
-        return data_return(true, $stockCache[stockName].sanitary_pickle)
+        return preformatted_data_return(true, $stockCache[stockName].sanitary_pickle)
     end
 end
 
@@ -555,7 +555,7 @@ get "/idinfo/*" do |id|
     if !check_login_validity(id)
         return data_return(false, {error: "Invalid user ID!", errorWith: "userId"})
     else
-        return data_return(true, JSON.parse(sanitize_user($idCache[id]).pickle))
+        return preformatted_data_return(true, sanitize_user($idCache[id]).pickle)
     end
 end
 
@@ -598,11 +598,11 @@ get "/liststocks" do
         n = $stockCache.length
     end
     if criteria == "top"
-        return data_return(true, $stockCache.values.sort_by { |stock| stock.averageValue }[-n .. -1].reverse.map{|stock| stock.sanitize})
+        return data_return(true, $stockCache.values.sort_by { |stock| stock.averageValue }[-n .. -1].reverse.map{|stock| stock.to_sanitary_h})
     elsif criteria == "new"
-        return data_return(true, $stockCache.values.sort_by { |stock| stock.time }[-n .. -1].reverse.map{|stock| stock.sanitize})
+        return data_return(true, $stockCache.values.sort_by { |stock| stock.time }[-n .. -1].reverse.map{|stock| stock.to_sanitary_h})
     elsif criteria == "random"
-        return data_return(true, $stockCache.values.sample(n).map{|stock| stock.sanitize})
+        return data_return(true, $stockCache.values.sample(n).map{|stock| stock.to_sanitary_h})
     else
         return data_return(false, {error: "Unknown criteria: #{criteria}", errorWith: "criteria"})
     end

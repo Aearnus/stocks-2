@@ -1,5 +1,6 @@
 require "json"
 require "securerandom"
+require "pp"
 
 class Transaction
     BUY = :buy
@@ -22,24 +23,23 @@ class Transaction
         :userId
     )
 
-    def pickle
-        %Q~
-{
-    "transaction": "#{@transaction}",
-    "time": #{@time},
-    "amount": #{@amount},
-    "amountDone": #{@amountDone},
-    "value": #{@value},
-    "uuid": "#{@uuid}",
-    "userId": "#{@userId}"
-}
-        ~.strip
+    # Implicitly called by JSON.generate
+    def to_h
+        {
+            transaction: @transaction,
+            time: @time,
+            amount: @amount,
+            amountDone: @amountDone,
+            value: @value,
+            uuid: @uuid,
+            userId: @userId
+        }
     end
 
-    # Implicitly called by JSON.generate
-    def to_s
-        pickle
+    def pickle
+        JSON.generate(self.to_h)
     end
+
 
     def initialize(transaction, amount, value, userId)
         if !(transaction == :buy || transaction == :sell || transaction == :done)
@@ -74,22 +74,34 @@ class Stock
         :history
     )
 
-    def pickle
-        %Q~
-{
-    "name": "#{@name}",
-    "desc": "#{@desc}",
-    "time": #{@time},
-    "shares": #{@shares},
-    "createdBy": "#{@createdBy}"
-    "history": #{JSON.generate(@history)}
-}
-        ~.strip
+    def to_sanitary_h
+        {
+            name: @name,
+            desc: @desc,
+            time: @time,
+            shares: @shares,
+            createdBy: "",
+            history: @history.map{|t| t.to_h},
+            averageValue: self.averageValue
+        }
     end
 
-    def to_s
-        pickle
+    def to_h
+        {
+            name: @name,
+            desc: @desc,
+            time: @time,
+            shares: @shares,
+            createdBy: @createdBy,
+            history: @history.map{|t| t.to_h},
+            averageValue: self.averageValue
+        }
     end
+
+    def pickle
+        JSON.generate(self.to_h)
+    end
+
 
     ############################################################
     # sanitize_stock(stock)
@@ -125,17 +137,9 @@ class Stock
         historyCopy = ([] << historyCopy.select{|t| t.transaction == :buy}.sample(6) << historyCopy.select{|t| t.transaction == :sell}.sample(6) << historyCopy.select{|t| t.transaction == :done}.sort_by{|t| -t.time}[0..100].reverse).flatten
         historyCopy.map! do |t|
             t.userId = ""
+            t
         end
-        %Q~
-{
-    "name": "#{@name}",
-    "desc": "#{@desc}",
-    "time": #{@time},
-    "shares": #{@shares},
-    "createdBy": ""
-    "history": #{JSON.generate(historyCopy)}
-}
-        ~.strip
+        JSON.generate(self.to_sanitary_h.yield_self{ |h| h[:history] = historyCopy.map{ |t| t.to_h } })
     end
 
     def averageValue(transactions = 25)
