@@ -137,9 +137,10 @@ class Stock
         historyCopy = ([] << historyCopy.select{|t| t.transaction == :buy}.sample(6) << historyCopy.select{|t| t.transaction == :sell}.sample(6) << historyCopy.select{|t| t.transaction == :done}.sort_by{|t| -t.time}[0..100].reverse).flatten
         historyCopy.map! do |t|
             t.userId = ""
-            t
+            t.to_h
         end
-        JSON.generate(self.to_sanitary_h.yield_self{ |h| h[:history] = historyCopy.map{ |t| t.to_h } })
+
+        JSON.generate(self.to_sanitary_h.tap{ |h| h[:history] = historyCopy })
     end
 
     def averageValue(transactions = 25)
