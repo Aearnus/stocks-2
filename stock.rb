@@ -120,6 +120,7 @@ class Stock
         deepCopy.history = ([] << deepCopy.history.select{|t| t.transaction == :buy}.sample(6) << deepCopy.history.select{|t| t.transaction == :sell}.sample(6) << deepCopy.history.select{|t| t.transaction == :done}.sort_by{|t| -t.time}[0..100].reverse).flatten
         deepCopy.history.map! do |t|
             t.userId = ""
+            t
         end
         return deepCopy
     end
@@ -129,6 +130,7 @@ class Stock
         @history = ([] << @history.select{|t| t.transaction == :buy}.sample(6) << @history.select{|t| t.transaction == :sell}.sample(6) << @history.select{|t| t.transaction == :done}.sort_by{|t| -t.time}[0..100].reverse).flatten
         @history.map! do |t|
             t.userId = ""
+            t
         end
     end
 

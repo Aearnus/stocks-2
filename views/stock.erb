@@ -10,7 +10,7 @@
 		<link rel="stylesheet" type="text/css" href="/stock.css">
 		<script type="text/javascript" src="/general-functions.js"></script>
 		<script type="text/javascript">
-			var stock = <%= stockObject %>;
+			var stock = <%= stockObject.sanitary_pickle %>;
 		</script>
 		<script type="text/javascript" src="/Chart.min.js"></script>
 		<script type="text/javascript" src="/graphing.js"></script>
@@ -148,7 +148,7 @@
 			<div class="rightalign floatingBox">
 				Liquid funds:
 				<div id="floatingMoney" class="money">0</div>
-				Shares owned:
+				 <%= stockObject.name %> Shares owned:
 				<div id="floatingShares">0</div>
 			</div>
 			<div class="leftalign floatingBox">

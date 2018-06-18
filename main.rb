@@ -492,7 +492,7 @@ end
 ############################################################
 get "/stock/*" do |stockName|
     if check_if_stock_exists(stockName)
-        erb :stock, :locals => {:stockObject => $stockCache[stockName].sanitary_pickle}
+        erb :stock, :locals => {:stockObject => $stockCache[stockName]}
     else
         erb :'stock-fail', :locals => {:stockName => stockName}
     end
