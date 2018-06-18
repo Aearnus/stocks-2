@@ -81,13 +81,17 @@ class User
         end
     end
 
-    def pickle
-        JSON.generate({
+    def to_h
+        {
             id: "#{@id}",
             money: @money,
             createdStocks: @createdStocks,
             ownedStocks: @ownedStocks,
             openOrders: @openOrders
-        })
+        }
+    end
+
+    def pickle
+        JSON.generate(self.to_h)
     end
 end

@@ -525,7 +525,7 @@ get "/stockinfo/*" do |stockName|
     if !check_if_stock_exists(stockName)
         return data_return(false, {error: "Invalid stock name!", errorWith: "stockName"})
     else
-        return preformatted_data_return(true, $stockCache[stockName].sanitary_pickle)
+        return data_return(true, $stockCache[stockName].to_sanitary_h)
     end
 end
 
@@ -555,7 +555,7 @@ get "/idinfo/*" do |id|
     if !check_login_validity(id)
         return data_return(false, {error: "Invalid user ID!", errorWith: "userId"})
     else
-        return preformatted_data_return(true, sanitize_user($idCache[id]).pickle)
+        return data_return(true, sanitize_user($idCache[id]).to_h)
     end
 end
 
