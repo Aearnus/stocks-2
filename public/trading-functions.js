@@ -41,7 +41,7 @@ function createSmallStockTicker(stockName, stockValue, stockChange) {
     var template = i("stockTickerSmallTemplate").cloneNode(true).content;
     template.querySelector("a").href = "stock/" + stockName;
     template.querySelector(".stockTitleSmall").textContent = stockName;
-    template.querySelector(".stockValueTickerSmall").textContent = stockValue;
+    template.querySelector(".stockValueTickerSmall").textContent = stockValue.toFixed(3);
     template.querySelector(".stockChangeTickerSmall").textContent = stockChange;
     template.querySelector(".stockChangeTickerSmall").classList.add(stockChange > 0 ? "positiveChange" : "negativeChange");
     return template;
@@ -70,7 +70,7 @@ function createLargeStockTicker(stockName, amountOwned, parentNode) {
             stockChange = stockHistoryToChange(stock);
             template.href = "/stock/" + stockName;
             template.querySelector(".stockTitleLarge").textContent = stockName;
-            template.querySelector(".stockValueTickerLarge").textContent = stockValue;
+            template.querySelector(".stockValueTickerLarge").textContent = stockValue.toFixed(3);
             template.querySelector(".stockChangeTickerLarge").textContent = stockChange;
             template.querySelector(".stockChangeTickerLarge").classList.add(stockChange > 0 ? "positiveChange" : "negativeChange");
             if (amountOwned > 0) {
