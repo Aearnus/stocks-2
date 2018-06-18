@@ -277,7 +277,7 @@ post "/sellstock" do
     #if all this is good, actually sell the stock!
     stock = $stockCache[stockName]
     #take the stock away from the user
-    user.modify_share_amount(stockName, -shares)
+    modify_user_stocks(user, stockName, -shareAmount)
     #add the transaction to the stock
     stock.new_transaction(Transaction::SELL, shareAmount, sharePrice, userId)
     #finally, apply the changes to cache and disk
@@ -404,7 +404,7 @@ post "/fillorder" do
         return data_return(false, {error: "This transaction does not exist!", errorWith: "transactionId"})
     end
     #or, if the transaction already went through
-    if transaction["transaction"] == "done"
+    if transaction.transaction == Transaction::DONE
         return data_return(false, {error: "This transaction no longer exists!", errorWith: "transactionId"})
     end
     # distinguish between the two types of transactions
@@ -416,7 +416,7 @@ post "/fillorder" do
     # money moved from the buyer (w/ check)
     # shares moved to the buyer
     # money moved to the seller
-    if transaction.transaction == :sell
+    if transaction.transaction == Transaction::SELL
         buyerUser = $idCache[userId]
         sellerUser = $idCache[transaction.userId]
         pp transaction
@@ -432,7 +432,7 @@ post "/fillorder" do
 
         #everything is good, let's commit the transaction
         #first, change the "sell" to "done"
-        transaction.transaction = :done
+        transaction.transaction = Transaction::DONE
         #then move the money out of the buyer's and into the seller's account
         sellerUser.money += transactionCost
         buyerUser.money -= transactionCost
@@ -445,17 +445,17 @@ post "/fillorder" do
     # shares moved from the seller (w/ check)
     # money moved to the seller
     # shares moved to the buyer
-elsif transaction.transaction == :buy
+elsif transaction.transaction == Transaction::BUY
         buyerUser = $idCache[transaction.userId]
         sellerUser = $idCache[userId]
         #make sure the seller has enough shares to fill the buy order
-        if (transaction.amount > sellerUser.ownedStocks[stockName].shares)
+        if (transaction.amount > sellerUser.ownedStocks[stockName])
             return data_return(false, {error: "You don't have enough shares to sell #{transaction.amount} shares!", errorWith: "stockAmount"})
         end
 
         #everything is good, let's commit the transaction
         #first, change the "buy" to "done"
-        transaction.transaction = :done
+        transaction.transaction = Transaction::DONE
         #then move the money into the seller's account
         #/buystock already moved money out of the buyer's account
         sellerUser.money += transaction.amount * transaction.value
