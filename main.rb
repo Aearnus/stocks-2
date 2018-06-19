@@ -277,7 +277,7 @@ post "/sellstock" do
     #if all this is good, actually sell the stock!
     stock = $stockCache[stockName]
     #take the stock away from the user
-    user.modify_share_amount(stockName, -shares)
+    modify_user_stocks(user, stockName, -shareAmount)
     #add the transaction to the stock
     stock.new_transaction(Transaction::SELL, shareAmount, sharePrice, userId)
     #finally, apply the changes to cache and disk
@@ -363,6 +363,9 @@ end
 #   stockName: the stock to buy
 #   userId: the id of the user that wishes to buy a stock
 #   transactionId: the uuid of the transaction
+# Optional POST params:
+#   amountToFill: the amount of the order to fill. if this
+#       is not provided, fill the whole order
 #   On success:
 #       {"result": true}
 #   On failure:
@@ -385,9 +388,9 @@ post "/fillorder" do
     end
     return if !assert_params(params, "stockName", "userId", "transactionId")
     stockName = params["stockName"].upcase;
-    shareAmount = params["stockAmount"].to_i;
     userId = params["userId"];
     transactionId = params["transactionId"];
+    amountToFill = params["amountToFill"].to_i;
     #make sure user exists
     if !check_login_validity(userId)
         return data_return(false, {error: "Invalid login token!", errorWith: "userId"})
@@ -399,69 +402,116 @@ post "/fillorder" do
     stock = $stockCache[stockName]
     #make sure transaction exists, and if so, save it
     transaction = stock.get_transaction transactionId
-    #if the transaction didn't exist
     if transaction.nil?
         return data_return(false, {error: "This transaction does not exist!", errorWith: "transactionId"})
     end
+    #make sure that the user requested a valid amount to fill, if they requested any at all
+    if !amountToFill.nil?
+        if amountToFill < 0 || amountToFill > (transaction.amount - transaction.amountDone)
+            return data_return(false, {error: "Invalid amount of shares to fill an order!", errorWith: "amountToFill"})
+        end
+    end
     #or, if the transaction already went through
-    if transaction["transaction"] == "done"
+    if transaction.transaction == Transaction::DONE
         return data_return(false, {error: "This transaction no longer exists!", errorWith: "transactionId"})
     end
     # distinguish between the two types of transactions
     buyerUser = nil
     sellerUser = nil
 
-    #if a sell transaction was already posted (shares were moved from the seller)
-    #what needs to be done:
-    # money moved from the buyer (w/ check)
-    # shares moved to the buyer
-    # money moved to the seller
-    if transaction.transaction == :sell
-        buyerUser = $idCache[userId]
-        sellerUser = $idCache[transaction.userId]
-        pp transaction
-        pp sellerUser
-        pp buyerUser
-        #make sure the buyer has enough money
-        transactionCost = transaction.amount * transaction.value
-        puts "TRANSACTION COST: #{transactionCost}, BUYER MONEY: #{buyerUser.money}"
-        if (transactionCost > buyerUser.money)
-            puts "RETURNING FALSE"
-            return data_return(false, {error: "You don't have enough money to buy #{transaction.amount} shares! (required: $#{transactionCost})", errorWith: "stockAmount"})
+    # very large if block incoming
+    # we check if we're making a partial order or a full order
+    
+    # if we're making a full order, just mark the transaction as 
+    # done and be done with it
+    if !amountToFill.nil?
+        #if a sell transaction was already posted (shares were moved from the seller)
+        #what needs to be done:
+        # money moved from the buyer (w/ check)
+        # shares moved to the buyer
+        # money moved to the seller
+        if transaction.transaction == Transaction::SELL
+            buyerUser = $idCache[userId]
+            sellerUser = $idCache[transaction.userId]
+            pp transaction
+            pp sellerUser
+            pp buyerUser
+            #make sure the buyer has enough money
+            transactionCost = transaction.amount * transaction.value
+            puts "TRANSACTION COST: #{transactionCost}, BUYER MONEY: #{buyerUser.money}"
+            if (transactionCost > buyerUser.money)
+                puts "RETURNING FALSE"
+                return data_return(false, {error: "You don't have enough money to buy #{transaction.amount} shares! (required: $#{transactionCost})", errorWith: "stockAmount"})
+            end
+
+            #then move the money out of the buyer's and into the seller's account
+            sellerUser.money += transactionCost
+            buyerUser.money -= transactionCost
+            #move the stocks into the buyer's account
+            #/sellstock alredy moved them out of the seller's account
+            buyerUser = modify_user_stocks(buyerUser, stockName, transaction.amount)
+
+        #if a buy transaction was already posted (money was moved from the buyer)
+        #what needs to be done:
+        # shares moved from the seller (w/ check)
+        # money moved to the seller
+        # shares moved to the buyer
+        elsif transaction.transaction == Transaction::BUY
+            buyerUser = $idCache[transaction.userId]
+            sellerUser = $idCache[userId]
+            #make sure the seller has enough shares to fill the buy order
+            if (transaction.amount > sellerUser.ownedStocks[stockName])
+                return data_return(false, {error: "You don't have enough shares to sell #{transaction.amount} shares!", errorWith: "stockAmount"})
+            end
+
+            #then move the money into the seller's account
+            #/buystock already moved money out of the buyer's account
+            sellerUser.money += transaction.amount * transaction.value
+            #move the shares into the buyer's account and out of the seller's account
+            buyerUser = modify_user_stocks(buyerUser, stockName, transaction.amount)
+            sellerUser = modify_user_stocks(sellerUser, stockName, -transaction.amount)
         end
-
         #everything is good, let's commit the transaction
-        #first, change the "sell" to "done"
-        transaction.transaction = :done
-        #then move the money out of the buyer's and into the seller's account
-        sellerUser.money += transactionCost
-        buyerUser.money -= transactionCost
-        #move the stocks into the buyer's account
-        #/sellstock alredy moved them out of the seller's account
-        buyerUser = modify_user_stocks(buyerUser, stockName, transaction.amount)
+        transaction.transaction = Transaction::DONE
+    else
+        # if we're not making a full order, then we're gonna do some extra business
+        # we do the whole process, but we only mark the transaction as done
+        # if the amountDone == amount
+        # note: we already did bounds checking on amountToFill
+        if transaction.transaction == Transaction::SELL
+            buyerUser = $idCache[userId]
+            sellerUser = $idCache[transaction.userId]
+            pp transaction
+            pp sellerUser
+            pp buyerUser
+            
+            transactionCost = amountToFill * transaction.value
+            puts "TRANSACTION COST: #{transactionCost}, BUYER MONEY: #{buyerUser.money}"
+            if (transactionCost > buyerUser.money)
+                puts "RETURNING FALSE"
+                return data_return(false, {error: "You don't have enough money to buy #{transaction.amount} shares! (required: $#{transactionCost})", errorWith: "stockAmount"})
+            end
 
-    #if a buy transaction was already posted (money was moved from the buyer)
-    #what needs to be done:
-    # shares moved from the seller (w/ check)
-    # money moved to the seller
-    # shares moved to the buyer
-elsif transaction.transaction == :buy
-        buyerUser = $idCache[transaction.userId]
-        sellerUser = $idCache[userId]
-        #make sure the seller has enough shares to fill the buy order
-        if (transaction.amount > sellerUser.ownedStocks[stockName].shares)
-            return data_return(false, {error: "You don't have enough shares to sell #{transaction.amount} shares!", errorWith: "stockAmount"})
+            sellerUser.money += transactionCost
+            buyerUser.money -= transactionCost
+            buyerUser = modify_user_stocks(buyerUser, stockName, amountToFill)
+            # the only thing we do different: 
+            # we increase the amountDone and check that later, instead of immediately marking it as done
+            transaction.amountDone += amountToFill
+        elsif transaction.transaction == Transaction::BUY
+            buyerUser = $idCache[transaction.userId]
+            sellerUser = $idCache[userId]
+            if (amountToFill > sellerUser.ownedStocks[stockName])
+                return data_return(false, {error: "You don't have enough shares to sell #{transaction.amount} shares!", errorWith: "stockAmount"})
+            end
+            sellerUser.money += amountToFill * transaction.value
+            buyerUser = modify_user_stocks(buyerUser, stockName, amountToFill)
+            sellerUser = modify_user_stocks(sellerUser, stockName, -amountToFill)
+            
+            transaction.amountDone += amountToFill
         end
-
-        #everything is good, let's commit the transaction
-        #first, change the "buy" to "done"
-        transaction.transaction = :done
-        #then move the money into the seller's account
-        #/buystock already moved money out of the buyer's account
-        sellerUser.money += transaction.amount * transaction.value
-        #move the shares into the buyer's account and out of the seller's account
-        buyerUser = modify_user_stocks(buyerUser, stockName, transaction.amount)
-        sellerUser = modify_user_stocks(sellerUser, stockName, -transaction.amount)
+        # check the transaction status and (maybe) commit it
+        transaction.transaction = Transaction::DONE if transaction.amount >= transaction.amountDone
     end
 
     #touch the time
