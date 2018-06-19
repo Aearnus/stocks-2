@@ -192,13 +192,13 @@ function createSellView(time, shares, shareValue, uuid) {
     template.querySelector(".transactionInfo").children[0].textContent = shares;
     template.querySelector(".transactionInfo").children[2].textContent = shareValue;
     template.querySelector(".transactionPrice").textContent = shares * shareValue;
-    template.querySelector(".transactionBuy").innerHTML = "Fill Order<br>(Buy Shares)";
+    template.querySelector(".transactionFill").innerHTML = "Fill Order<br>(Buy Shares)";
     var isDisabled = (shareValue * shares) > user["money"];
     if (isDisabled) {
         template.querySelector(".transactionPrice").classList.add("inputError");
-        template.querySelector(".transactionBuy").disabled = true;
+        template.querySelector(".transactionFill").disabled = true;
     } else {
-        template.querySelector(".transactionBuy").onclick = function (e) { fillOrder(uuid, e); }
+        template.querySelector(".transactionFill").onclick = function (e) { fillOrder(uuid, e); }
     }
 
     return template;
@@ -212,14 +212,14 @@ function createBuyView(time, shares, shareValue, uuid) {
     template.querySelector(".transactionInfo").children[0].textContent = shares;
     template.querySelector(".transactionInfo").children[2].textContent = shareValue;
     template.querySelector(".transactionPrice").textContent = shares * shareValue;
-    template.querySelector(".transactionBuy").innerHTML = "Fill Order<br>(Sell Shares)";
-    template.querySelector(".transactionBuy").onclick = function (e) { fillOrder(uuid, e); }
+    template.querySelector(".transactionFill").innerHTML = "Fill Order<br>(Sell Shares)";
+    template.querySelector(".transactionFill").onclick = function (e) { fillOrder(uuid, e); }
     var isDisabled = shares > user["ownedStocks"][stock["name"]];
     if (isDisabled) {
         template.querySelector(".transactionInfo").children[0].classList.add("inputError");
-        template.querySelector(".transactionBuy").disabled = true;
+        template.querySelector(".transactionFill").disabled = true;
     } else {
-        template.querySelector(".transactionBuy").onclick = function (e) { fillOrder(uuid, e); }
+        template.querySelector(".transactionFill").onclick = function (e) { fillOrder(uuid, e); }
     }
     return template;
 }
