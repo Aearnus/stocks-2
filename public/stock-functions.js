@@ -70,9 +70,9 @@ function updateStock() {
     for (var index in stock["history"]) {
         var trans = stock["history"][index];
         if (trans["transaction"] == "sell") {
-            i("sellOrders").appendChild(createSellView(trans["time"], trans["amount"], trans["value"], trans["uuid"]));
+            i("sellOrders").appendChild(createSellView(trans["time"], parseInt(trans["amount"]) - parseInt(trans["amountDone"]), trans["value"], trans["uuid"]));
         } else if (trans["transaction"] == "buy") {
-            i("buyOrders").appendChild(createBuyView(trans["time"], trans["amount"], trans["value"], trans["uuid"]));
+            i("buyOrders").appendChild(createBuyView(trans["time"], parseInt(trans["amount"]) - parseInt(trans["amountDone"]), trans["value"], trans["uuid"]));
         }
     }
 }
