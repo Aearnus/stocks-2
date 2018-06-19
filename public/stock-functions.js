@@ -189,7 +189,8 @@ function createSellView(time, shares, shareValue, uuid) {
     var template = i("transactionTemplate").cloneNode(true).content;
     template.querySelector(".transactionType").textContent = "Sell Order";
     template.querySelector(".transactionTime").textContent = (Math.floor(Date.now()/1000) - time) + " seconds ago";
-    template.querySelector(".transactionInfo").children[0].textContent = shares;
+    template.querySelector(".transactionInfo").children[0].value = shares;
+    template.querySelector(".transactionInfo").children[0].max = shares;
     template.querySelector(".transactionInfo").children[2].textContent = shareValue;
     template.querySelector(".transactionPrice").textContent = shares * shareValue;
     template.querySelector(".transactionFill").innerHTML = "Fill Order<br>(Buy Shares)";
@@ -209,7 +210,8 @@ function createBuyView(time, shares, shareValue, uuid) {
     var template = i("transactionTemplate").cloneNode(true).content;
     template.querySelector(".transactionType").textContent = "Buy Order";
     template.querySelector(".transactionTime").textContent = (Math.floor(Date.now()/1000) - time) + " seconds ago";
-    template.querySelector(".transactionInfo").children[0].textContent = shares;
+    template.querySelector(".transactionInfo").children[0].value = shares;
+    template.querySelector(".transactionInfo").children[0].max = shares;
     template.querySelector(".transactionInfo").children[2].textContent = shareValue;
     template.querySelector(".transactionPrice").textContent = shares * shareValue;
     template.querySelector(".transactionFill").innerHTML = "Fill Order<br>(Sell Shares)";

@@ -48,8 +48,15 @@
     padding-left: 1rem;
 }
 
-.transactionBuy {
+.transactionFill {
     text-align: center;
     background-color: var(--text);
     width: 100%;
+}
+
+.transactionAmount {
+    background-color: var(--text-alt);
+    color: var(--bg);
+    width: 40%;
+    border: 0;
 }
