@@ -183,15 +183,35 @@ function fillOrder(uuid, event) {
     , JSON.stringify({stockName: stock["name"], userId: localStorage.getItem("stocks2id"), transactionId: uuid}));
 }
 
+function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+function buySellViewAmountCallback(parentElementId) {
+    console.log(parentElementId);
+    // ensure that the value in the share amount input makes sense
+    // that is, more than 0 and less than the max amount
+    var maxAmount = parseInt(parentElement.querySelector(".transactionInfo").querySelector(".transactionAmount").max);
+    var amount = parseInt(parentElement.querySelector(".transactionInfo").querySelector(".transactionAmount").textContent);
+    if (amount > maxAmount) {
+        parentElement.querySelector(".transactionAmount").textContent = maxAmount;
+    }
+    if (amount < 0) {
+        parentElement.querySelector(".transactionAmount").textContent = "0";
+    }
+}
+
 function createSellView(time, shares, shareValue, uuid) {
     console.log("Creating transaction view for transaction " + uuid);
     console.log("Variables: " + time + " " + shares + " " + shareValue + " " + uuid);
     var template = i("transactionTemplate").cloneNode(true).content;
+    var templateId = "transactionTemplate" + getRandomInt(100000, 1000000);
+    template.id = templateId;
     template.querySelector(".transactionType").textContent = "Sell Order";
     template.querySelector(".transactionTime").textContent = (Math.floor(Date.now()/1000) - time) + " seconds ago";
-    template.querySelector(".transactionInfo").children[0].value = shares;
-    template.querySelector(".transactionInfo").children[0].max = shares;
-    template.querySelector(".transactionInfo").children[2].textContent = shareValue;
+    template.querySelector(".transactionAmount").value = shares;
+    template.querySelector(".transactionAmount").max = shares;
+    template.querySelector(".transactionAmountMax").textContent = shares;
+    template.querySelector(".transactionPricePerShare").textContent = shareValue;
     template.querySelector(".transactionPrice").textContent = shares * shareValue;
     template.querySelector(".transactionFill").innerHTML = "Fill Order<br>(Buy Shares)";
     var isDisabled = (shareValue * shares) > user["money"];
@@ -202,17 +222,21 @@ function createSellView(time, shares, shareValue, uuid) {
         template.querySelector(".transactionFill").onclick = function (e) { fillOrder(uuid, e); }
     }
 
+    template.querySelector(".transactionAmount").oninput = (() => { buySellViewAmountCallback(template); });
     return template;
 }
 
 function createBuyView(time, shares, shareValue, uuid) {
     console.log("Creating transaction view for transaction " + uuid);
     var template = i("transactionTemplate").cloneNode(true).content;
+    var templateId = "transactionTemplate" + getRandomInt(100000, 1000000);
+    template.id = templateId;
     template.querySelector(".transactionType").textContent = "Buy Order";
     template.querySelector(".transactionTime").textContent = (Math.floor(Date.now()/1000) - time) + " seconds ago";
-    template.querySelector(".transactionInfo").children[0].value = shares;
-    template.querySelector(".transactionInfo").children[0].max = shares;
-    template.querySelector(".transactionInfo").children[2].textContent = shareValue;
+    template.querySelector(".transactionAmount").value = shares;
+    template.querySelector(".transactionAmount").max = shares;
+    template.querySelector(".transactionAmountMax").textContent = shares;
+    template.querySelector(".transactionPricePerShare").textContent = shareValue;
     template.querySelector(".transactionPrice").textContent = shares * shareValue;
     template.querySelector(".transactionFill").innerHTML = "Fill Order<br>(Sell Shares)";
     template.querySelector(".transactionFill").onclick = function (e) { fillOrder(uuid, e); }
@@ -223,5 +247,7 @@ function createBuyView(time, shares, shareValue, uuid) {
     } else {
         template.querySelector(".transactionFill").onclick = function (e) { fillOrder(uuid, e); }
     }
+
+    template.querySelector(".transactionAmount").oninput = (() => { buySellViewAmountCallback(template); });
     return template;
 }
